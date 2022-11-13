@@ -14,13 +14,13 @@
 
 import pygame
 import pygame_menu
-import sys
 
-from settings import *
+from game import Game
 
+from settings import TITLE,background_colour,game_width,game_height
 
-class Game:
-    def start_game(self):
+class Window:
+    def build_window(self):
         self.initialize_screen()
         self.build_menu()
         self.event_loop()
@@ -33,25 +33,9 @@ class Game:
         pygame.display.flip()
 
     def start_the_game(self):
-        def drawGrid():
-            blockSize = 20  # Set the size of the grid block
-            for x in range(0, game_width, blockSize):
-                for y in range(0, game_height, blockSize):
-                    rect = pygame.Rect(x, y, blockSize, blockSize)
-                    pygame.draw.rect(self.screen, 'black', rect, 1)
-
-        self.screen.fill('white')
-
-        while True:
-            drawGrid()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                    sys.exit()
-
-            pygame.display.update()
+    	g = Game(self)
+    	g.start_game()
+        
 
     def set_difficulty(self, value, difficulty):
         self.difficulty = value
@@ -74,5 +58,6 @@ class Game:
 
 
 if __name__ == '__main__':
-    g = Game()
-    g.start_game()
+	w = Window()
+	w.build_window()
+    
