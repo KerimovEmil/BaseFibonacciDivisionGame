@@ -14,16 +14,17 @@
 
 import pygame
 import pygame_menu
-
 from game import Game
 
-from settings import TITLE,background_colour,game_width,game_height
+from settings import TITLE, background_colour, game_width, game_height
+
+SKIP_MENU = True
+
 
 class Window:
     def build_window(self):
         self.initialize_screen()
         self.build_menu()
-        self.event_loop()
 
     def initialize_screen(self):
         pygame.init()
@@ -33,9 +34,8 @@ class Window:
         pygame.display.flip()
 
     def start_the_game(self):
-    	g = Game(self)
-    	g.start_game()
-        
+        g = Game(self)
+        g.build_initial_game_grid()
 
     def set_difficulty(self, value, difficulty):
         self.difficulty = value
@@ -45,19 +45,16 @@ class Window:
                                 theme=pygame_menu.themes.THEME_BLUE)
         menu.add.text_input('Name :', default='John Doe')
         menu.add.selector('Difficulty :', [('Hard', 1), ('Medium', 2), ('Easy', 3)], onchange=self.set_difficulty)
-        menu.add.button('Play', self.start_the_game)
+        play_button = menu.add.button('Play', self.start_the_game)
         menu.add.button('Quit', pygame_menu.events.EXIT)
-        menu.mainloop(self.screen)
 
-    def event_loop(self):
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+        if SKIP_MENU:
+            menu.mainloop(self.screen, disable_loop=True)
+            self.start_the_game()
+        else:
+            menu.mainloop(self.screen)
 
 
 if __name__ == '__main__':
-	w = Window()
-	w.build_window()
-    
+    w = Window()
+    w.build_window()
