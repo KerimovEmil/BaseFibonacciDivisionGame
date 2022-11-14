@@ -27,3 +27,6 @@ Handle user clicks (and drags) to cell objects
 
 If they click on a red cell
 -> then 
+
+# Event Class (handle dragging)
+  - If button pressed down and collides with some rectangle
