@@ -57,7 +57,6 @@ class Game:
 
     def populate_problem(self, grid):
         """Add the product fib on the first row"""
-
         print(f'product={self.prod}, fib_product={self.fib_prod}')
         end_x, end_y = START_X + grid.grid_width * BLOCK_SIZE, START_Y + grid.grid_height * BLOCK_SIZE
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):

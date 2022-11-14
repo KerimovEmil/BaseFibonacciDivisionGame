@@ -125,6 +125,35 @@ class Cell:
             circle_obj = pygame.draw.circle(screen, 'red', center_pos,  0.6 * BLOCK_SIZE / 2)
             self.ls_circle_obj.append(circle_obj)
 
-        # todo implement 2 circles
+        elif self.value == 2:
+            x1 = self.rect_obj.centerx + self.rect_obj.size[0] // 6
+            y1 = self.rect_obj.centery + self.rect_obj.size[1] // 6
+            circle_obj_1 = pygame.draw.circle(screen, 'red', (x1, y1),  0.5 * BLOCK_SIZE / 2)
+
+            x2 = self.rect_obj.centerx - self.rect_obj.size[0] // 6
+            y2 = self.rect_obj.centery - self.rect_obj.size[1] // 6
+            circle_obj_2 = pygame.draw.circle(screen, 'red', (x2, y2),  0.5 * BLOCK_SIZE / 2)
+
+            self.ls_circle_obj.append(circle_obj_1)
+            self.ls_circle_obj.append(circle_obj_2)
+
+        elif self.value == 3:
+            x1 = self.rect_obj.centerx
+            y1 = self.rect_obj.centery + self.rect_obj.size[1] // 6
+            circle_obj_1 = pygame.draw.circle(screen, 'red', (x1, y1),  0.4 * BLOCK_SIZE / 2)
+
+            x2 = self.rect_obj.centerx - self.rect_obj.size[0] // 6
+            y2 = self.rect_obj.centery - self.rect_obj.size[1] // 6
+            circle_obj_2 = pygame.draw.circle(screen, 'red', (x2, y2),  0.4 * BLOCK_SIZE / 2)
+
+            x3 = self.rect_obj.centerx + self.rect_obj.size[0] // 6
+            y3 = self.rect_obj.centery - self.rect_obj.size[1] // 6
+            circle_obj_3 = pygame.draw.circle(screen, 'red', (x3, y3),  0.4 * BLOCK_SIZE / 2)
+
+            self.ls_circle_obj.append(circle_obj_1)
+            self.ls_circle_obj.append(circle_obj_2)
+            self.ls_circle_obj.append(circle_obj_3)
+
+        # todo implement 4 circles
         else:
             raise NotImplementedError
