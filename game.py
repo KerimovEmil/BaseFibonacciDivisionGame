@@ -25,13 +25,6 @@ class Game:
 
         self.build_initial_game_grid()
 
-    def drawGrid(self, grid_width, grid_height):
-        end_x, end_y = START_X + grid_width * BLOCK_SIZE, START_Y + grid_height * BLOCK_SIZE
-        for x in range(START_X, end_x, BLOCK_SIZE):
-            for y in range(START_Y, end_y, BLOCK_SIZE):
-                rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
-                pygame.draw.rect(self.screen, 'black', rect, 1)
-
     def draw_labels(self, grid_width, grid_height):
         end_x, end_y = START_X + grid_width * BLOCK_SIZE, START_Y + grid_height * BLOCK_SIZE
         self.draw_x_labels(end_x, end_y)
@@ -76,7 +69,6 @@ class Game:
         self.screen.fill('white')
 
         self.grid.draw_grid()
-        self.drawGrid(grid_width=self.grid_width, grid_height=self.grid_height)
         self.draw_labels(grid_width=self.grid_width, grid_height=self.grid_height)
         self.populate_problem(grid=self.grid)
 
