@@ -28,6 +28,8 @@ class Window:
 
     def initialize_screen(self):
         pygame.init()
+        pygame.font.init()
+        
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(TITLE)
         self.screen.fill(background_colour)
