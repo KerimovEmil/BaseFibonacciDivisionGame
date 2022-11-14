@@ -2,7 +2,7 @@ import pygame
 import sys
 from settings import TITLE, background_colour, WINDOW_WIDTH, WINDOW_HEIGHT, START_X, START_Y, BLOCK_SIZE
 from font_settings import AXIS_FONT
-from util import get_multiplication, convert_decimal_to_base_fib,get_first_n_zeckendorf_terms
+from util import get_multiplication, convert_decimal_to_base_fib, get_first_n_zeckendorf_terms
 
 
 class Game:
@@ -31,28 +31,25 @@ class Game:
 
     def draw_labels(self, grid_width, grid_height):
         end_x, end_y = START_X + grid_width * BLOCK_SIZE, START_Y + grid_height * BLOCK_SIZE
-        self.draw_x_labels(end_x,end_y)
-        self.draw_y_labels(end_x,end_y)
+        self.draw_x_labels(end_x, end_y)
+        self.draw_y_labels(end_x, end_y)
 
-    
-    def place_label(self,curr_num:str, x:int, y:int):
-        font_w,font_h = AXIS_FONT.size(curr_num)
-        
-        coords = x + (BLOCK_SIZE - font_w) // 2 ,y + (BLOCK_SIZE-font_h)//2
+    def place_label(self, curr_num: str, x: int, y: int):
+        font_w, font_h = AXIS_FONT.size(curr_num)
+
+        coords = x + (BLOCK_SIZE - font_w) // 2, y + (BLOCK_SIZE - font_h) // 2
 
         img = AXIS_FONT.render(curr_num, True, 'blue')
-        self.screen.blit(img,coords)
+        self.screen.blit(img, coords)
 
-
-    def draw_x_labels(self,end_x,end_y):
+    def draw_x_labels(self, end_x, end_y):
         fib_numbers = get_first_n_zeckendorf_terms(self.grid_width)[::-1]
-        for ind,x in enumerate(range(START_X, end_x, BLOCK_SIZE)):
+        for ind, x in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             self.place_label(str(fib_numbers[ind]), x, end_y)
 
-            
-    def draw_y_labels(self,end_x,end_y):
+    def draw_y_labels(self, end_x, end_y):
         fib_numbers = get_first_n_zeckendorf_terms(self.grid_height)[::-1]
-        for ind,y in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
+        for ind, y in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
             self.place_label(str(fib_numbers[ind]), end_x, y)
 
     def populate_problem(self, grid_width, grid_height):
@@ -63,7 +60,8 @@ class Game:
         last_row_y = START_Y + grid_height * BLOCK_SIZE
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             if self.fib_prod[x] == '1':
-                pygame.draw.circle(self.screen, 'red', (x_pos + BLOCK_SIZE / 2, last_row_y - BLOCK_SIZE / 2), 0.6 * BLOCK_SIZE / 2)
+                pygame.draw.circle(self.screen, 'red', (x_pos + BLOCK_SIZE / 2, last_row_y - BLOCK_SIZE / 2),
+                                   0.6 * BLOCK_SIZE / 2)
 
         # highlight rows based on self.fib_div
         print(f'dividend={self.div}, fib_dividend={self.fib_div}')
@@ -73,7 +71,6 @@ class Game:
                 # rect = pygame.Rect(START_X, y_pos, end_x, BLOCK_SIZE)
                 rect = pygame.Rect(START_X, y_pos, grid_width * BLOCK_SIZE, BLOCK_SIZE)
                 pygame.draw.rect(self.screen, 'green', rect, 5)
-
 
     def build_initial_game_grid(self):
         self.screen.fill('white')
