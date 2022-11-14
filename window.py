@@ -16,7 +16,7 @@ import pygame
 import pygame_menu
 from game import Game
 
-from settings import TITLE, background_colour, game_width, game_height
+from settings import TITLE, background_colour, WINDOW_WIDTH, WINDOW_HEIGHT
 
 SKIP_MENU = True
 
@@ -28,7 +28,7 @@ class Window:
 
     def initialize_screen(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((game_width, game_height))
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(TITLE)
         self.screen.fill(background_colour)
         pygame.display.flip()
@@ -41,7 +41,7 @@ class Window:
         self.difficulty = value
 
     def build_menu(self):
-        menu = pygame_menu.Menu('Base Fibonacci Division Game', game_width, game_height,
+        menu = pygame_menu.Menu('Base Fibonacci Division Game', WINDOW_WIDTH, WINDOW_HEIGHT,
                                 theme=pygame_menu.themes.THEME_BLUE)
         menu.add.text_input('Name :', default='John Doe')
         menu.add.selector('Difficulty :', [('Hard', 1), ('Medium', 2), ('Easy', 3)], onchange=self.set_difficulty)

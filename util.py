@@ -1,6 +1,7 @@
 import unittest
 from typing import Union, List
 from math import log
+from random import randint
 
 
 def fibonacci_n_term(n: int) -> Union[int, NotImplementedError]:
@@ -18,6 +19,15 @@ def zeckendorf_n_term(n: int) -> Union[int, NotImplementedError]:
 
 def get_first_n_zeckendorf_terms(n: int) -> List[int]:
     return [zeckendorf_n_term(i) for i in range(1, n+1)]
+
+
+def get_multiplication(lower=4, upper=9) -> (int, int, int):
+    a = randint(lower, upper)
+    b = randint(lower, upper)
+    dividend = min(a, b)
+    quotient = max(a, b)
+
+    return dividend, quotient, dividend*quotient
 
 
 def convert_decimal_to_base_fib(n: int) -> str:
