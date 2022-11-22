@@ -3,19 +3,13 @@ import pygame
 import pdb
 class DrawCircle:
 
-    num_circles = {
-        0: "zero_circles",
-        1: "one_circle",
-        2: "two_circles",
-        3: "three_circles"
-    }
 
     def __init__(self,cell,screen):
         self.cell = cell
         self.screen = screen
-        
+    
     def draw_circle_in_cell(self):
-        self.__getattribute__(self.num_circles[self.cell.value])(self.cell,self.screen)
+        self.num_circles[self.cell.value](self.cell,self.screen)
 
     @staticmethod
     def zero_circles(cell,screen):
@@ -58,7 +52,12 @@ class DrawCircle:
         cell.ls_circle_obj.append(circle_obj_2)
         cell.ls_circle_obj.append(circle_obj_3)
 
-    
+    num_circles = {
+        0: zero_circles,
+        1: one_circle,
+        2: two_circles,
+        3: three_circles
+    }
 
 
 
