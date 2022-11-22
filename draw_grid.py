@@ -56,6 +56,7 @@ class DrawGrid:
                 cell = self.grid.array[y][x]
                 dc = DrawCircle(cell,self.screen)
                 dc.draw_circle_in_cell()
-    
+
+
 
 

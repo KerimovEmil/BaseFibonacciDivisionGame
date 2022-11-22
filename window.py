@@ -2,7 +2,7 @@ import pygame
 import pygame_menu
 from game import Game
 
-from settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU
+from settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU, GAME_ICON_PATH
 
 
 class Window:
@@ -12,6 +12,9 @@ class Window:
 
     def initialize_screen(self):
         pygame.init()
+        game_icon = pygame.image.load(GAME_ICON_PATH)
+        pygame.display.set_icon(game_icon)
+
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(TITLE)
         self.screen.fill(BG_COLOR)

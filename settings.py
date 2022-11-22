@@ -8,6 +8,7 @@ START_Y = 80
 BLOCK_SIZE = 60
 DEBUG_MODE = True
 SKIP_MENU = True
+GAME_ICON_PATH = "assets/fib_bg1.png"
 
 # Background Image Settings. Lower Alpha is more transparent
 BG_IMG = "assets/fib_bg1.png"

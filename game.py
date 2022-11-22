@@ -11,6 +11,7 @@ from grid import Grid
 from draw_grid import DrawGrid
 from problem import Problem
 from background import Background
+from event_loop import EventLoop
 import pdb
 
 class Game:
@@ -43,13 +44,11 @@ class Game:
         self.background = Background(self.screen)
         self.background.render()
 
-
     def build_draw_grid_instance(self):
         self.draw_grid = DrawGrid(self.grid,self.screen)
 
     def problem_width(self):
         return self.problem.grid_width()
-
 
     def problem_height(self):
         return self.problem.grid_height()
@@ -57,31 +56,12 @@ class Game:
     def problem_last_row(self):
         return self.problem.grid_last_row()
 
-
-    def drag_case(i,r,m):
-        global l
-        if l[i] != None:
-            l[i][1] = [r,m]
-
-    # Events and Eventloops should be their own class
     def build_user_event_loop(self):
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == MOUSEMOTION:
-                    print("mouse motion")
-                if event.type == KEYDOWN:
-                    print("keydown")
-                if event.type == MOUSEBUTTONDOWN:
-                    print("mouse down")
-                if event.type == MOUSEBUTTONUP:
-                    print("mouse up")
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                    sys.exit()
+    	self.event_loop = EventLoop(self)
+    	self.event_loop.start()
 
-            pygame.display.update()
+
+
 
 
 
