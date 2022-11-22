@@ -3,6 +3,7 @@ from util import convert_decimal_to_base_fib, get_first_n_zeckendorf_terms
 import pygame
 from pygame.locals import * 
 from font_settings import AXIS_FONT
+from draw_circle import DrawCircle
 
 class DrawGrid:
     """
@@ -53,12 +54,8 @@ class DrawGrid:
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             for y, y_pos in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
                 cell = self.grid.array[y][x]
-                if cell.value == 1:
-                    self.draw_circle_in_cell(cell)
+                dc = DrawCircle(cell,self.screen)
+                dc.draw_circle_in_cell()
     
-    def draw_circle_in_cell(self,cell):
-        center_pos = cell.rect_obj.center
-        circle_obj = pygame.draw.circle(self.screen, 'red', center_pos,  0.6 * BLOCK_SIZE / 2)
-        cell.ls_circle_obj.append(circle_obj)
 
 
