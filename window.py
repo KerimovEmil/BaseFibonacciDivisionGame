@@ -6,9 +6,12 @@ from settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU, GA
 
 
 class Window:
-    def build_window(self):
+    def __init__(self):
         self.initialize_screen()
         self.build_menu()
+
+        self.screen = None
+        self.difficulty = None
 
     def initialize_screen(self):
         pygame.init()
@@ -44,4 +47,3 @@ class Window:
 
 if __name__ == '__main__':
     w = Window()
-    w.build_window()

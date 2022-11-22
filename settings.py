@@ -1,6 +1,6 @@
 # Game Start Settings
 TITLE = "Fibonacci Base Division Game"
-BG_COLOR = (255,255,255)
+BG_COLOR = (255, 255, 255)
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 START_X = 80
