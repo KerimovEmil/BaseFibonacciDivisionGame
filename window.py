@@ -1,24 +1,8 @@
-# Welcome to Fibonacci Game
-# 2 options (can move up and down then enter to select or click on it)
-# 	- Start Game
-# 	- Tutorial
-# Change screen after that
-# show grid of cells and move counter
-# Top-right corner: Move counter
-
-
-# Change screen color to black on Click
-# show the number 7 on click
-# on "q" keypress, close the program
-# when clicking at particular location, say "clicked at location"
-
 import pygame
 import pygame_menu
 from game import Game
 
-from settings import TITLE, background_colour, WINDOW_WIDTH, WINDOW_HEIGHT
-
-SKIP_MENU = True
+from settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU
 
 
 class Window:
@@ -28,15 +12,14 @@ class Window:
 
     def initialize_screen(self):
         pygame.init()
-        
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(TITLE)
-        self.screen.fill(background_colour)
+        self.screen.fill(BG_COLOR)
         pygame.display.flip()
 
     def start_the_game(self):
         g = Game(self)
-        g.build_initial_game_grid()
+        g.start_game()
 
     def set_difficulty(self, value, difficulty):
         self.difficulty = value
