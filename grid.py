@@ -37,15 +37,11 @@ class Grid:
     def cells(self):
         return [cell for row in self.array for cell in row]
 
-    def cell_positions(self):
-        raise NotImplemented
-
-    # Likely want to append full cell object and the position
-    def circle_positions(self):
+    def non_empty_cells(self):
         res = []
         for cell in self.cells():
             if len(cell.ls_circle_obj) > 0:
-                res.append([cell.ls_circle_obj[0], cell])
+                res.append(cell)
         return res
 
     def event_to_cell_positions(self, event):
