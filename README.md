@@ -30,3 +30,50 @@ If they click on a red cell
 
 # Event Class (handle dragging)
   - If button pressed down and collides with some rectangle
+
+
+# Initial setup for dragging
+0. Helper Methods:
+  -> For a given cell, return the row/column its in
+  -> For a given cell, return the (x,y) co-ordinate of its center position
+  -> For a (x,y) position, return the cell that it falls within
+    -> this should be something
+    -> [After this is done,can then use is_valid_move as we can pass in 
+    cell_x, cell_y indices
+
+0. Want to show the cell (row #, col #) that the mouse is currently in. If its not on top of a cell
+then we want to show that as well
+
+1. HELPER Methods
+
+# Next Steps for Dragging
+
+3. Can likely refactor to be comprehensive in regards to grid building
+
+0. Integrate general dragging of arbitrary element
+
+1. Enable dragging for any of the red cells
+
+2. Constrain dragging to only be able to go up one or right one
+    -> can have various "constraints" be added/passed so its easy 
+    to quickly add/remove constraints to be  
+[organize/refactor classes]
+
+3. Use the Cell Class effectively
+
+4. Want a function that when given a cell, it returns the positions that the cell can be moved to. Another functionw will take these positions (or cells) and reflect it on the GUI. After the cell is no longer hovered over 
+
+
+
+# REFACTORING
+Grid should not be in charge of validation
+
+
+
+
+
+
+
+
+
+
