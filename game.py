@@ -36,7 +36,7 @@ class Game:
             screen=self.screen,
             width=self.grid_width,
             height=self.grid_height,
-            last_row=self.problem_last_row()
+            problem=self.problem
         )
 
     def build_background_image(self):
@@ -52,9 +52,6 @@ class Game:
     @property
     def grid_height(self):
         return self.problem.grid_height
-
-    def problem_last_row(self):
-        return self.problem.grid_last_row()
 
     def build_user_event_loop(self):
         self.event_loop = EventLoop(self)

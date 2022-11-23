@@ -46,4 +46,4 @@ class Problem:
         return len(self.fib_dividend)
 
     def grid_last_row(self):
-        return [char for char in self.fib_dividend]
+        return self.fib_dividend

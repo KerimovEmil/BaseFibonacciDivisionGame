@@ -1,21 +1,24 @@
 from settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
-from typing import List
 from cell import Cell
 from pygame import Surface
 
 
 class Grid:
-    def __init__(self, screen: Surface, width: int, height: int, last_row: List[int]):
+    def __init__(self, screen: Surface, width: int, height: int, problem):
         self.screen = screen
         self.width = width
         self.height = height
-        self.last_row = last_row
+        # self.last_row = last_row
+        self.fib_dividend = problem.fib_dividend
+        self.fib_divisor = problem.fib_divisor
+        self.fib_quotient = problem.fib_quotient
 
         self.end_x = START_X + self.width * BLOCK_SIZE
         self.end_y = START_Y + self.height * BLOCK_SIZE
 
         self.array = self.build_initial_array_of_cells()
         self.populate_initial_state_of_last_row()
+        self.populate_solution()
 
         if DEBUG_MODE:
             self.print()
@@ -31,8 +34,15 @@ class Grid:
 
     def populate_initial_state_of_last_row(self):
         for x, x_pos in enumerate(range(START_X, self.end_x, BLOCK_SIZE)):
-            if self.last_row[x] == '1':
+            if self.fib_dividend[x] == '1':
                 self.array[self.height - 1][x].change_value(add=1)
+
+    def populate_solution(self):
+        for x, x_pos in enumerate(self.fib_quotient[::-1]):
+            for y, y_pos in enumerate(self.fib_divisor):
+                if y_pos == '1' and x_pos == '1':
+                    cell = self.array[y][-1 - x]
+                    cell.solution = True
 
     def cells(self):
         return [cell for row in self.array for cell in row]
@@ -43,6 +53,3 @@ class Grid:
             if cell.value > 0:
                 res.append(cell)
         return res
-
-    def event_to_cell_positions(self, event):
-        raise NotImplemented

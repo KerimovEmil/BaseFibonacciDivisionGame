@@ -55,5 +55,16 @@ class DrawGrid:
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             for y, y_pos in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
                 cell = self.grid.array[y][x]
-                dc = DrawCircle(cell, self.screen)
+
+                if cell.solution:
+                    dc = DrawCircle(cell=cell, screen=self.screen, colour=pygame.Color(0, 50, 0))
+                    dc.draw_circle_in_cell(solution=True)
+
+                if cell.value == 1 and cell.solution:
+                    colour = 'yellow'
+                else:
+                    colour = 'red'
+
+                dc = DrawCircle(cell, self.screen, colour=colour)
                 dc.draw_circle_in_cell()
+
