@@ -23,6 +23,13 @@ class Grid:
         if DEBUG_MODE:
             self.print()
 
+    def is_win(self):
+        """Returns if the position is a win"""
+        for cell in self.non_empty_cells():
+            if (cell.value != 1) or (not cell.solution):
+                return False
+        return True
+
     def print(self):
         for row in self.array:
             for cell in row:
