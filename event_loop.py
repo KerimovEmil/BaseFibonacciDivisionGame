@@ -28,7 +28,7 @@ class EventLoop:
         Background(self.screen)
         DrawGrid(self.grid, self.screen)
         if self.grid.is_win():
-        	s = PlaySound("WIN_GAME")
+            PlaySound("WIN_GAME")
 
     # Define different event states in functions
     def start(self):

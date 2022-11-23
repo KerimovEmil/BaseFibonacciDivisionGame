@@ -23,6 +23,7 @@ class Grid:
         if DEBUG_MODE:
             self.print()
 
+    @property
     def num_solution_cells(self) -> int:
         """Return number of solution cells"""
         return self.fib_divisor.count('1') * self.fib_quotient.count('1')
@@ -63,7 +64,7 @@ class Grid:
     def cells(self):
         return [cell for row in self.array for cell in row]
 
-    def non_empty_cells(self):
+    def non_empty_cells(self) -> list:
         res = []
         for cell in self.cells():
             if cell.value > 0:
