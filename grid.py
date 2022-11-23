@@ -23,9 +23,18 @@ class Grid:
         if DEBUG_MODE:
             self.print()
 
+    def num_solution_cells(self) -> int:
+        """Return number of solution cells"""
+        return self.fib_divisor.count('1') * self.fib_quotient.count('1')
+
     def is_win(self):
         """Returns if the position is a win"""
-        for cell in self.non_empty_cells():
+        ls_non_empty = self.non_empty_cells()
+
+        if len(ls_non_empty) != self.num_solution_cells:
+            return False
+
+        for cell in ls_non_empty:
             if (cell.value != 1) or (not cell.solution):
                 return False
         return True
