@@ -5,7 +5,7 @@ from settings import BLOCK_SIZE
 from draw_grid import DrawGrid
 from background import Background
 from move import Move
-
+from play_sound import PlaySound
 
 class EventLoop:
     def __init__(self, game):
@@ -27,6 +27,8 @@ class EventLoop:
         self.grid.screen.fill((255, 255, 255))
         Background(self.screen)
         DrawGrid(self.grid, self.screen)
+        if self.grid.is_win():
+        	s = PlaySound("WIN_GAME")
 
     # Define different event states in functions
     def start(self):
