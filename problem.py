@@ -19,7 +19,7 @@ class Problem:
         fib_quotient is ... of quotient  (111)
     """
 
-    def __init__(self, lower=4, upper=10):
+    def __init__(self, lower=10, upper=15):
         # defining the problem
         self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
 
@@ -34,6 +34,7 @@ class Problem:
     def build_random_problem(lower, upper) -> (int, int, int):
         if BABY_MODE:
            lower,upper = 4, 4
+
         a = randint(lower, upper)
         b = randint(lower, upper)
 
