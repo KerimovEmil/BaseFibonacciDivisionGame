@@ -16,6 +16,7 @@ GAME_ICON_PATH = "assets/fib_bg1.png"
 # Background Image Settings. Lower Alpha is more transparent
 BG_IMG = "assets/fib_bg1.png"
 IMG_ALPHA = 128
+BABY_MODE = True
 
 #SOUND 
 #VALID_SOUND="valid_sound.mp3"
@@ -23,6 +24,7 @@ IMG_ALPHA = 128
 
 class SoundFile:
 	VALID_MOVE = "valid_sound.mp3"
+	# VALID_MOVE = "win_game_sound.mp3"
 	INVALID_MOVE = "invalid_sound.mp3"
 	WIN_GAME = "win_game_sound.mp3"
 	LOSE_GAME = "lose_game_sound.mp3"

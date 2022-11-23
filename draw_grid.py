@@ -54,6 +54,7 @@ class DrawGrid:
         end_x, end_y = START_X + self.grid.width * BLOCK_SIZE, START_Y + self.grid.height * BLOCK_SIZE
         
         win_result = True
+
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             for y, y_pos in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
                 cell = self.grid.array[y][x]
@@ -68,10 +69,11 @@ class DrawGrid:
                     colour = 'red'
                     win_result = False
 
-                dc = DrawCircle(cell, self.screen, colour=colour)
-                dc.draw_circle_in_cell()
-                
-                if win_result:
-                	s = PlaySound("WIN_GAME")
+               	if cell.value > 0 or cell.solution:
+	                dc = DrawCircle(cell, self.screen, colour=colour)
+	                dc.draw_circle_in_cell()
+        
+        if win_result:
+        	s = PlaySound("WIN_GAME")
 
 
