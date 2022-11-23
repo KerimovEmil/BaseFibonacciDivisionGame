@@ -4,6 +4,7 @@ import sys
 from settings import BLOCK_SIZE
 from draw_grid import DrawGrid
 from background import Background
+from move import Move
 
 
 class EventLoop:
@@ -38,11 +39,11 @@ class EventLoop:
                 if event.type == keys.MOUSEMOTION:
                     if clicked:
                         mouse_x, mouse_y = event.pos
-                        if dragging_obj:
-                            dragging_obj.x = mouse_x + offset_x
-                            dragging_obj.y = mouse_y + offset_y
+                        if clicked_cell:
+                            pos_x = mouse_x + offset_x
+                            pos_y = mouse_y + offset_y
                             self.reset_screen_and_redraw_grid()
-                            pygame.draw.circle(self.grid.screen, 'blue', dragging_obj.center, 0.6 * BLOCK_SIZE / 2)
+                            pygame.draw.circle(self.grid.screen, 'blue', (pos_x, pos_y), 0.6 * BLOCK_SIZE / 2)
 
                     # print("mouse motion")
                 if event.type == keys.KEYDOWN:
@@ -50,16 +51,47 @@ class EventLoop:
                 if event.type == keys.MOUSEBUTTONDOWN and event.button == 1:
                     print("mouse down")
                     clicked = True
-                    dragging_obj = self.mouse_position_collide_with_piece(event)
+                    clicked_cell = self.mouse_position_collide_with_piece(event)
 
-                    if dragging_obj:
+                    if clicked_cell:
                         mouse_x, mouse_y = event.pos
-                        offset_x = dragging_obj.x - mouse_x
-                        offset_y = dragging_obj.y - mouse_y
+                        offset_x = clicked_cell.rect_obj.center[0] - mouse_x
+                        offset_y = clicked_cell.rect_obj.center[1] - mouse_y
 
-                if event.type == keys.MOUSEBUTTONUP:
-                    clicked = False
+                if event.type == keys.MOUSEBUTTONUP and clicked:
                     print("mouse up")
+                    clicked = False
+                    # undo the visual
+                    clicked_cell.value += 1
+
+                    # find cell that user dropped mouse in
+                    for cell in self.grid.cells():
+                        if cell.collide_point((pos_x, pos_y)):
+                            new_cell = cell
+                            break
+
+                    # figure out implied direction (maybe method in move class)
+                    if clicked_cell.distance(new_cell) != 1:
+                        pass
+                    else:
+                        if new_cell.grid_row_pos > clicked_cell.grid_row_pos:
+                            direction = 'DOWN'
+                        elif new_cell.grid_row_pos < clicked_cell.grid_row_pos:
+                            direction = 'UP'
+                        elif new_cell.grid_col_pos < clicked_cell.grid_col_pos:
+                            direction = 'LEFT'
+                        else:
+                            direction = 'RIGHT'
+                        print(f'clicked_row:{clicked_cell.grid_row_pos}, clicked_col:{clicked_cell.grid_col_pos},'
+                              f'new_cell_row:{new_cell.grid_row_pos}, new_cell_col:{new_cell.grid_col_pos},'
+                              f'direction: {direction}')
+                        # pass into move class
+                        moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
+                                     direction=direction).make_move()
+
+                        # if moved:
+                    self.reset_screen_and_redraw_grid()
+
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                     sys.exit()
 
@@ -74,7 +106,6 @@ class EventLoop:
                 c_obj = pygame.draw.circle(self.grid.screen, 'blue', cell.rect_obj.center, 0.6 * BLOCK_SIZE / 2)
 
                 # remove one of the existing circles
-                _ = cell.ls_circle_obj.pop()
                 cell.value -= 1
 
-                return c_obj
+                return cell

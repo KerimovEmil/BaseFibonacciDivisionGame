@@ -19,38 +19,31 @@ class DrawCircle:
     def one_circle(cell, screen):
         center_pos = cell.rect_obj.center
         circle_obj = pygame.draw.circle(screen, 'red', center_pos, 0.6 * BLOCK_SIZE / 2)
-        cell.ls_circle_obj.append(circle_obj)
 
     @staticmethod
     def two_circles(cell, screen):
         x1 = cell.rect_obj.centerx + cell.rect_obj.size[0] // 6
         y1 = cell.rect_obj.centery + cell.rect_obj.size[1] // 6
-        circle_obj_1 = pygame.draw.circle(screen, 'red', (x1, y1), 0.5 * BLOCK_SIZE / 2)
 
         x2 = cell.rect_obj.centerx - cell.rect_obj.size[0] // 6
         y2 = cell.rect_obj.centery - cell.rect_obj.size[1] // 6
-        circle_obj_2 = pygame.draw.circle(screen, 'red', (x2, y2), 0.5 * BLOCK_SIZE / 2)
 
-        cell.ls_circle_obj.append(circle_obj_1)
-        cell.ls_circle_obj.append(circle_obj_2)
+        for x, y in ((x1, y1), (x2, y2)):
+            pygame.draw.circle(screen, 'red', (x, y), 0.5 * BLOCK_SIZE / 2)
 
     @staticmethod
     def three_circles(cell, screen):
         x1 = cell.rect_obj.centerx
         y1 = cell.rect_obj.centery + cell.rect_obj.size[1] // 6
-        circle_obj_1 = pygame.draw.circle(screen, 'red', (x1, y1), 0.4 * BLOCK_SIZE / 2)
 
         x2 = cell.rect_obj.centerx - cell.rect_obj.size[0] // 6
         y2 = cell.rect_obj.centery - cell.rect_obj.size[1] // 6
-        circle_obj_2 = pygame.draw.circle(screen, 'red', (x2, y2), 0.4 * BLOCK_SIZE / 2)
 
         x3 = cell.rect_obj.centerx + cell.rect_obj.size[0] // 6
         y3 = cell.rect_obj.centery - cell.rect_obj.size[1] // 6
-        circle_obj_3 = pygame.draw.circle(screen, 'red', (x3, y3), 0.4 * BLOCK_SIZE / 2)
 
-        cell.ls_circle_obj.append(circle_obj_1)
-        cell.ls_circle_obj.append(circle_obj_2)
-        cell.ls_circle_obj.append(circle_obj_3)
+        for x, y in ((x1, y1), (x2, y2), (x3, y3)):
+            pygame.draw.circle(screen, 'red', (x, y), 0.4 * BLOCK_SIZE / 2)
 
     num_circles = {
         0: zero_circles,

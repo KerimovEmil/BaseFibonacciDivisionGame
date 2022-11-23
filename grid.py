@@ -27,7 +27,7 @@ class Grid:
             print()
 
     def build_initial_array_of_cells(self):
-        return [[Cell(value=0) for _ in range(self.width)] for _ in range(self.height)]
+        return [[Cell(value=0, grid_row_pos=i, grid_col_pos=j) for j in range(self.width)] for i in range(self.height)]
 
     def populate_initial_state_of_last_row(self):
         for x, x_pos in enumerate(range(START_X, self.end_x, BLOCK_SIZE)):
@@ -40,7 +40,7 @@ class Grid:
     def non_empty_cells(self):
         res = []
         for cell in self.cells():
-            if len(cell.ls_circle_obj) > 0:
+            if cell.value > 0:
                 res.append(cell)
         return res
 

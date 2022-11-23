@@ -1,8 +1,12 @@
 class Cell:
-    def __init__(self, value=0):
+    def __init__(self, value=0, grid_row_pos=0, grid_col_pos=0):
         self.value = value
+        self.grid_row_pos = grid_row_pos
+        self.grid_col_pos = grid_col_pos
         self.rect_obj = None
-        self.ls_circle_obj = []
+
+    def distance(self, other):
+        return abs(other.grid_row_pos - self.grid_row_pos) + abs(other.grid_col_pos - self.grid_col_pos)
 
     def change_value(self, add=1):
         self.value += add
