@@ -16,7 +16,8 @@ GAME_ICON_PATH = "assets/fib_bg1.png"
 # Background Image Settings. Lower Alpha is more transparent
 BG_IMG = "assets/fib_bg1.png"
 IMG_ALPHA = 128
-BABY_MODE = True
+# BABY_MODE = True
+BABY_MODE = False
 
 #SOUND 
 #VALID_SOUND="valid_sound.mp3"
