@@ -37,7 +37,6 @@ class Move:
 
         Returns: boolean if the move was valid
         """
-        # todo confirm that the bottom left is self.width, self.height and not 0,0
         if direction == 'LEFT':
             if cell_x == (self.grid.width - 1):
                 # special case
@@ -73,9 +72,10 @@ class Move:
             if self.array[self.cell_y][self.cell_x].value > 1:
                 self.array[self.cell_y][self.cell_x].change_value(-2)
                 self.array[self.cell_y][self.cell_x - 1].change_value(1)
-        self.array[self.cell_y][self.cell_x].change_value(-1)
-        self.array[self.cell_y][self.cell_x + 1].change_value(-1)
-        self.array[self.cell_y][self.cell_x - 1].change_value(1)
+        else:
+            self.array[self.cell_y][self.cell_x].change_value(-1)
+            self.array[self.cell_y][self.cell_x + 1].change_value(-1)
+            self.array[self.cell_y][self.cell_x - 1].change_value(1)
 
     def move_right(self):
         if self.cell_x == (self.grid.width - 2):  # second last row

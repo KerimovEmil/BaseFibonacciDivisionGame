@@ -50,13 +50,15 @@ class EventLoop:
                     print("keydown")
                 if event.type == keys.MOUSEBUTTONDOWN and event.button == 1:
                     print("mouse down")
-                    clicked = True
                     clicked_cell = self.mouse_position_collide_with_piece(event)
 
                     if clicked_cell:
+                        clicked = True
                         mouse_x, mouse_y = event.pos
                         offset_x = clicked_cell.rect_obj.center[0] - mouse_x
                         offset_y = clicked_cell.rect_obj.center[1] - mouse_y
+                        pos_x = clicked_cell.rect_obj.center[0]
+                        pos_y = clicked_cell.rect_obj.center[1]
 
                 if event.type == keys.MOUSEBUTTONUP and clicked:
                     print("mouse up")
@@ -107,5 +109,4 @@ class EventLoop:
 
                 # remove one of the existing circles
                 cell.value -= 1
-
                 return cell
