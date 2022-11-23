@@ -65,7 +65,7 @@ class DrawGrid:
 
                 if cell.value == 1 and cell.solution:
                     colour = 'yellow'
-                else:
+                elif cell.value == 0:
                     colour = 'red'
                     win_result = False
 
