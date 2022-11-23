@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 # Game Start Settings
 TITLE = "Fibonacci Base Division Game"
 BG_COLOR = (255, 255, 255)
@@ -15,5 +18,14 @@ BG_IMG = "assets/fib_bg1.png"
 IMG_ALPHA = 128
 
 #SOUND 
-VALID_SOUND="valid_sound.mp3"
-INVALID_SOUND="invalid_sound.mp3"
+#VALID_SOUND="valid_sound.mp3"
+#INVALID_SOUND="invalid_sound.mp3"
+
+class SoundFile:
+	VALID_MOVE = "valid_sound.mp3"
+	INVALID_MOVE = "invalid_sound.mp3"
+	WIN_GAME = "win_game_sound.mp3"
+	LOSE_GAME = "lose_game_sound.mp3"
+	
+
+

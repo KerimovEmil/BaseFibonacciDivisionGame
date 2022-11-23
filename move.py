@@ -1,4 +1,4 @@
-from sound import Sound
+from play_sound import PlaySound
 class Move:
 
     def __init__(self, grid, cell_x: int, cell_y: int, direction: str) -> None:
@@ -61,11 +61,12 @@ class Move:
         """Directly modifies the grid object and returns weather the move was performed successfully"""
         if not self.is_valid(self.cell_x, self.cell_y, self.direction):
             print('move was not valid')
-            s = Sound(False)
+            # s = Sound(False)
+            s = PlaySound("INVALID_MOVE")
             return False
 
         self.direction_handler[self.direction]()
-        s = Sound(True)
+        s = PlaySound("VALID_MOVE")
         return True
 
     def move_left(self):

@@ -4,7 +4,7 @@ import pygame
 from font_settings import AXIS_FONT
 from draw_circle import DrawCircle
 from grid import Grid
-
+from play_sound import PlaySound
 
 class DrawGrid:
     """
@@ -52,6 +52,8 @@ class DrawGrid:
 
     def draw_circles(self):
         end_x, end_y = START_X + self.grid.width * BLOCK_SIZE, START_Y + self.grid.height * BLOCK_SIZE
+        
+        win_result = True
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             for y, y_pos in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
                 cell = self.grid.array[y][x]
@@ -64,7 +66,12 @@ class DrawGrid:
                     colour = 'yellow'
                 else:
                     colour = 'red'
+                    win_result = False
 
                 dc = DrawCircle(cell, self.screen, colour=colour)
                 dc.draw_circle_in_cell()
+                
+                if win_result:
+                	s = PlaySound("WIN_GAME")
+
 
