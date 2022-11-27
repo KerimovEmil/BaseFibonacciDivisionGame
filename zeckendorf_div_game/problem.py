@@ -1,6 +1,7 @@
-from util import convert_decimal_to_base_fib, get_first_n_zeckendorf_terms, debug_helper_print_attributes
+from zeckendorf_div_game.util import convert_decimal_to_base_fib, debug_helper_print_attributes
 from random import randint
-from settings import BABY_MODE, LOWER_BOUND,UPPER_BOUND
+from zeckendorf_div_game.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
+
 
 class Problem:
     """
@@ -33,7 +34,7 @@ class Problem:
     @staticmethod
     def build_random_problem(lower, upper) -> (int, int, int):
         if BABY_MODE:
-           lower,upper = 4, 4
+            lower, upper = 4, 4
 
         a = randint(lower, upper)
         b = randint(lower, upper)

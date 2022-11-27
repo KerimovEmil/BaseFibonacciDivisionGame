@@ -1,6 +1,7 @@
-from settings import BLOCK_SIZE
+from zeckendorf_div_game.settings import BLOCK_SIZE
 import pygame
-from font_settings import CIRCLE_FONT
+from zeckendorf_div_game.font_settings import CIRCLE_FONT
+
 
 class DrawCircle:
 
@@ -16,31 +17,29 @@ class DrawCircle:
             num_circles = self.cell.value
 
         if num_circles in self.num_circles.keys():
-	        self.num_circles[num_circles](cell=self.cell, screen=self.screen, colour=self.colour)
+            self.num_circles[num_circles](cell=self.cell, screen=self.screen, colour=self.colour)
         else:
-        	self.one_circle(self.cell, self.screen, self.colour)
-        	self.number_in_circle(self.cell,self.screen,num_circles)
+            self.one_circle(self.cell, self.screen, self.colour)
+            self.number_in_circle(self.cell, self.screen, num_circles)
 
     @staticmethod
     def zero_circles(cell, screen, colour):
         return
 
     @staticmethod
-    def number_in_circle(cell,screen,num):
-    	center_pos = cell.rect_obj.center
-    	x, y = center_pos[0], center_pos[1]
-    	font_w, font_h = CIRCLE_FONT.size(str(num))
-    	img = CIRCLE_FONT.render(str(num), True, 'white')
-    	coordinates = x - font_w // 2, y - font_h // 2
+    def number_in_circle(cell, screen, num):
+        center_pos = cell.rect_obj.center
+        x, y = center_pos[0], center_pos[1]
+        font_w, font_h = CIRCLE_FONT.size(str(num))
+        img = CIRCLE_FONT.render(str(num), True, 'white')
+        coordinates = x - font_w // 2, y - font_h // 2
 
-    	screen.blit(img, coordinates)
+        screen.blit(img, coordinates)
 
-    
     @staticmethod
     def one_circle(cell, screen, colour):
         center_pos = cell.rect_obj.center
         pygame.draw.circle(screen, colour, center_pos, 0.6 * BLOCK_SIZE / 2)
-
 
     @staticmethod
     def two_circles(cell, screen, colour):
@@ -52,7 +51,6 @@ class DrawCircle:
 
         for x, y in ((x1, y1), (x2, y2)):
             pygame.draw.circle(screen, colour, (x, y), 0.5 * BLOCK_SIZE / 2)
-
 
     @staticmethod
     def three_circles(cell, screen, colour):

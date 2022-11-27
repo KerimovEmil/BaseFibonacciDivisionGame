@@ -1,10 +1,10 @@
-from settings import START_X, START_Y, BLOCK_SIZE
-from util import get_first_n_zeckendorf_terms
+from zeckendorf_div_game.settings import START_X, START_Y, BLOCK_SIZE
+from zeckendorf_div_game.util import get_first_n_zeckendorf_terms
 import pygame
-from font_settings import AXIS_FONT, AXIS_COLOR
-from draw_circle import DrawCircle
-from grid import Grid
-from play_sound import PlaySound
+from zeckendorf_div_game.font_settings import AXIS_FONT, AXIS_COLOR
+from zeckendorf_div_game.draw_circle import DrawCircle
+from zeckendorf_div_game.grid import Grid
+
 
 class DrawGrid:
     """
@@ -52,7 +52,7 @@ class DrawGrid:
 
     def draw_circles(self):
         end_x, end_y = START_X + self.grid.width * BLOCK_SIZE, START_Y + self.grid.height * BLOCK_SIZE
-        
+
         for x, x_pos in enumerate(range(START_X, end_x, BLOCK_SIZE)):
             for y, y_pos in enumerate(range(START_Y, end_y, BLOCK_SIZE)):
                 cell = self.grid.array[y][x]
@@ -68,6 +68,3 @@ class DrawGrid:
 
                 dc = DrawCircle(cell, self.screen, colour=colour)
                 dc.draw_circle_in_cell()
-                
-
-

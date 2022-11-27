@@ -1,11 +1,12 @@
 import pygame
 
-from grid import Grid
-from draw_grid import DrawGrid
-from problem import Problem
-from background import Background
-from event_loop import EventLoop
-from move_counter import MoveCounter
+from zeckendorf_div_game.grid import Grid
+from zeckendorf_div_game.draw_grid import DrawGrid
+from zeckendorf_div_game.problem import Problem
+from zeckendorf_div_game.background import Background
+from zeckendorf_div_game.event_loop import EventLoop
+from zeckendorf_div_game.move_counter import MoveCounter
+
 
 class Game:
     def __init__(self, window):
@@ -31,7 +32,7 @@ class Game:
         self.build_user_event_loop()
 
     def build_move_counter(self):
-    	return MoveCounter(self.screen)
+        return MoveCounter(self.screen)
 
     def build_problem(self):
         return Problem()

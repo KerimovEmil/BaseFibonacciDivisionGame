@@ -1,8 +1,7 @@
 import unittest
 from typing import Union, List
 from math import log
-from random import randint
-from settings import DEBUG_MODE
+from zeckendorf_div_game.settings import DEBUG_MODE
 import pprint
 
 

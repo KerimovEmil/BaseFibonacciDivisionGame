@@ -1,11 +1,12 @@
 import pygame
 import pygame.locals as keys
 import sys
-from settings import BLOCK_SIZE
-from draw_grid import DrawGrid
-from background import Background
-from move import Move
-from play_sound import PlaySound
+from zeckendorf_div_game.settings import BLOCK_SIZE
+from zeckendorf_div_game.draw_grid import DrawGrid
+from zeckendorf_div_game.background import Background
+from zeckendorf_div_game.move import Move
+from zeckendorf_div_game.play_sound import PlaySound
+
 
 class EventLoop:
     def __init__(self, game):
@@ -101,7 +102,7 @@ class EventLoop:
                         # pass into move class
                         moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
                                      direction=direction).make_move()
-                        print("moved is: ",moved)
+                        print("moved is: ", moved)
 
                     if moved:
                         self.increment_moves()

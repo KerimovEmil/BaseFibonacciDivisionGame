@@ -1,8 +1,8 @@
 import pygame
 import pygame_menu
-from game import Game
+from zeckendorf_div_game.game import Game
 
-from settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU, GAME_ICON_PATH
+from zeckendorf_div_game.settings import TITLE, BG_COLOR, WINDOW_WIDTH, WINDOW_HEIGHT, SKIP_MENU, GAME_ICON_PATH
 
 
 class Window:
@@ -43,7 +43,3 @@ class Window:
             self.start_the_game()
         else:
             menu.mainloop(self.screen)
-
-
-if __name__ == '__main__':
-    w = Window()
