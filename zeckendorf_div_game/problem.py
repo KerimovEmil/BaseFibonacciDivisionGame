@@ -11,8 +11,8 @@ class Problem:
 
     Attributes:
         E.g. 30/4 = 7.
-        dividend   is 30    
-        divisor    is 4  
+        dividend   is 30
+        divisor    is 4
         quotient   is 7
 
         fib_dividend is Zeckendorf representation of dividend (1010001)

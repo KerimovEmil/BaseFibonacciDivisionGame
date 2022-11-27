@@ -40,6 +40,11 @@ class EventLoop:
         if self.grid.is_win():
             PlaySound("WIN_GAME")
 
+    @staticmethod
+    def quit():
+        pygame.quit()
+        sys.exit()
+
     def start(self):
         clicked = False
         moved = None
@@ -50,8 +55,7 @@ class EventLoop:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit()
                 if event.type == keys.MOUSEMOTION:
                     if clicked:
                         mouse_x, mouse_y = event.pos
@@ -125,7 +129,7 @@ class EventLoop:
             if cell.collide_point(event.pos):
                 print("COLLISION WITH CIRCLE")
                 # create new dragging object
-                c_obj = pygame.draw.circle(self.grid.screen, 'blue', cell.rect_obj.center, 0.6 * BLOCK_SIZE / 2)
+                pygame.draw.circle(self.grid.screen, 'blue', cell.rect_obj.center, 0.6 * BLOCK_SIZE / 2)
 
                 # remove one of the existing circles
                 cell.value -= 1
