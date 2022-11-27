@@ -1,4 +1,4 @@
-from settings import SoundFile
+from zeckendorf_div_game.settings import SoundFile
 from pygame import mixer
 
 

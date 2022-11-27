@@ -11,19 +11,20 @@ START_Y = 80
 BLOCK_SIZE = 60
 DEBUG_MODE = True
 SKIP_MENU = False
-GAME_ICON_PATH = "assets/fib_bg1.png"
+GAME_ICON_PATH = "./assets/fib_bg1.png"
 
 # Background Image Settings. Lower Alpha is more transparent
 BG_IMG = "assets/fib_bg1.png"
 IMG_ALPHA = 128
 BABY_MODE = False
 
+# Problem setup
 LOWER_BOUND = 4
 UPPER_BOUND = 10
 
 
 class SoundFile:
-    VALID_MOVE = "valid_sound.mp3"
-    INVALID_MOVE = "invalid_sound.mp3"
-    WIN_GAME = "win_game_sound.mp3"
-    LOSE_GAME = "lose_game_sound.mp3"
+    VALID_MOVE = './sounds/valid_sound.mp3'
+    INVALID_MOVE = './sounds/invalid_sound.mp3'
+    WIN_GAME = './sounds/win_game_sound.mp3'
+    LOSE_GAME = './sounds/lose_game_sound.mp3'

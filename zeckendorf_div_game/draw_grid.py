@@ -1,9 +1,9 @@
-from settings import START_X, START_Y, BLOCK_SIZE
-from util import get_first_n_zeckendorf_terms
+from zeckendorf_div_game.settings import START_X, START_Y, BLOCK_SIZE
+from zeckendorf_div_game.util import get_first_n_zeckendorf_terms
 import pygame
-from font_settings import AXIS_FONT, AXIS_COLOR
-from draw_circle import DrawCircle
-from grid import Grid
+from zeckendorf_div_game.font_settings import AXIS_FONT, AXIS_COLOR
+from zeckendorf_div_game.draw_circle import DrawCircle
+from zeckendorf_div_game.grid import Grid
 
 
 class DrawGrid:

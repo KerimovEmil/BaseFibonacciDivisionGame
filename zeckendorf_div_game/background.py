@@ -1,4 +1,4 @@
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_IMG, IMG_ALPHA
+from zeckendorf_div_game.settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_IMG, IMG_ALPHA
 import pygame
 
 

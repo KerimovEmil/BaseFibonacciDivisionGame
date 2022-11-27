@@ -1,5 +1,5 @@
-from settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
-from cell import Cell
+from zeckendorf_div_game.settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
+from zeckendorf_div_game.cell import Cell
 from pygame import Surface
 
 

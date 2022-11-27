@@ -1,6 +1,6 @@
-from settings import BLOCK_SIZE
+from zeckendorf_div_game.settings import BLOCK_SIZE
 import pygame
-from font_settings import CIRCLE_FONT
+from zeckendorf_div_game.font_settings import CIRCLE_FONT
 
 
 class DrawCircle:

@@ -1,11 +1,11 @@
 import pygame
 import pygame.locals as keys
 import sys
-from settings import BLOCK_SIZE
-from draw_grid import DrawGrid
-from background import Background
-from move import Move
-from play_sound import PlaySound
+from zeckendorf_div_game.settings import BLOCK_SIZE
+from zeckendorf_div_game.draw_grid import DrawGrid
+from zeckendorf_div_game.background import Background
+from zeckendorf_div_game.move import Move
+from zeckendorf_div_game.play_sound import PlaySound
 
 
 class EventLoop:

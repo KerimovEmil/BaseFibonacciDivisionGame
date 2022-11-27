@@ -1,4 +1,4 @@
-from play_sound import PlaySound
+from zeckendorf_div_game.play_sound import PlaySound
 
 
 class Move:
