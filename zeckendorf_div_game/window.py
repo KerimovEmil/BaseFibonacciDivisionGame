@@ -35,7 +35,7 @@ class Window:
                                 theme=pygame_menu.themes.THEME_BLUE)
         menu.add.text_input('Name :', default='John Doe')
         menu.add.selector('Difficulty :', [('Hard', 1), ('Medium', 2), ('Easy', 3)], onchange=self.set_difficulty)
-        play_button = menu.add.button('Play', self.start_the_game)
+        menu.add.button('Play', self.start_the_game)
         menu.add.button('Quit', pygame_menu.events.EXIT)
 
         if SKIP_MENU:

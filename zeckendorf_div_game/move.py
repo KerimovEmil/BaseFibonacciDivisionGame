@@ -63,11 +63,11 @@ class Move:
         """Directly modifies the grid object and returns weather the move was performed successfully"""
         if not self.is_valid(self.cell_x, self.cell_y, self.direction):
             print('move was not valid')
-            s = PlaySound("INVALID_MOVE")
+            PlaySound("INVALID_MOVE")
             return False
 
         self.direction_handler[self.direction]()
-        s = PlaySound("VALID_MOVE")
+        PlaySound("VALID_MOVE")
         return True
 
     def move_left(self):

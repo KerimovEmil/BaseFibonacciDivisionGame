@@ -40,14 +40,22 @@ class EventLoop:
         if self.grid.is_win():
             PlaySound("WIN_GAME")
 
+    @staticmethod
+    def quit():
+        pygame.quit()
+        sys.exit()
+
     def start(self):
         clicked = False
         moved = None
+        clicked_cell = None
+        offset_x, offset_y = None, None
+        pos_x, pos_y = None, None
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit()
                 if event.type == keys.MOUSEMOTION:
                     if clicked:
                         mouse_x, mouse_y = event.pos
@@ -57,7 +65,6 @@ class EventLoop:
                             self.reset_screen_and_redraw_grid()
                             pygame.draw.circle(self.grid.screen, 'blue', (pos_x, pos_y), 0.6 * BLOCK_SIZE / 2)
 
-                    # print("mouse motion")
                 if event.type == keys.KEYDOWN:
                     print("keydown")
                 if event.type == keys.MOUSEBUTTONDOWN and event.button == 1:
@@ -75,6 +82,7 @@ class EventLoop:
                 if event.type == keys.MOUSEBUTTONUP and clicked:
                     print("mouse up")
                     clicked = False
+                    new_cell = None
                     # undo the visual
                     clicked_cell.value += 1
 
@@ -107,6 +115,7 @@ class EventLoop:
                     if moved:
                         self.increment_moves()
                         moved = None
+
                     self.reset_screen_and_redraw_grid()
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
@@ -120,7 +129,7 @@ class EventLoop:
             if cell.collide_point(event.pos):
                 print("COLLISION WITH CIRCLE")
                 # create new dragging object
-                c_obj = pygame.draw.circle(self.grid.screen, 'blue', cell.rect_obj.center, 0.6 * BLOCK_SIZE / 2)
+                pygame.draw.circle(self.grid.screen, 'blue', cell.rect_obj.center, 0.6 * BLOCK_SIZE / 2)
 
                 # remove one of the existing circles
                 cell.value -= 1
