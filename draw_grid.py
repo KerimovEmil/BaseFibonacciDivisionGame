@@ -1,7 +1,7 @@
 from settings import START_X, START_Y, BLOCK_SIZE
 from util import get_first_n_zeckendorf_terms
 import pygame
-from font_settings import AXIS_FONT
+from font_settings import AXIS_FONT, AXIS_COLOR
 from draw_circle import DrawCircle
 from grid import Grid
 from play_sound import PlaySound
@@ -37,7 +37,7 @@ class DrawGrid:
 
         coordinates = x + (BLOCK_SIZE - font_w) // 2, y + (BLOCK_SIZE - font_h) // 2
 
-        img = AXIS_FONT.render(curr_num, True, 'blue')
+        img = AXIS_FONT.render(curr_num, True, AXIS_COLOR)
         self.screen.blit(img, coordinates)
 
     def draw_x_labels(self, end_x, end_y):

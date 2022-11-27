@@ -4,6 +4,9 @@ from enum import Enum
 # Game Start Settings
 TITLE = "Fibonacci Base Division Game"
 BG_COLOR = (255, 255, 255)
+
+AXIS_COLOR= "blue"
+
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 START_X = 80
@@ -18,6 +21,9 @@ BG_IMG = "assets/fib_bg1.png"
 IMG_ALPHA = 128
 BABY_MODE = False
 
+
+LOWER_BOUND = 4
+UPPER_BOUND = 10
 #SOUND 
 #VALID_SOUND="valid_sound.mp3"
 #INVALID_SOUND="invalid_sound.mp3"

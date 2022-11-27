@@ -1,6 +1,6 @@
 from util import convert_decimal_to_base_fib, get_first_n_zeckendorf_terms, debug_helper_print_attributes
 from random import randint
-from settings import BABY_MODE
+from settings import BABY_MODE, LOWER_BOUND,UPPER_BOUND
 
 class Problem:
     """
@@ -19,7 +19,7 @@ class Problem:
         fib_quotient is ... of quotient  (111)
     """
 
-    def __init__(self, lower=10, upper=15):
+    def __init__(self, lower=LOWER_BOUND, upper=UPPER_BOUND):
         # defining the problem
         self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
 
