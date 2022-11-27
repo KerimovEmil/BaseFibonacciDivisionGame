@@ -7,6 +7,10 @@ class Cell:
         self.rect_obj = None
 
     def distance(self, other):
+
+        if other is None:
+            return None
+
         return abs(other.grid_row_pos - self.grid_row_pos) + abs(other.grid_col_pos - self.grid_col_pos)
 
     def change_value(self, add=1):
