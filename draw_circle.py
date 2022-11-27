@@ -21,8 +21,6 @@ class DrawCircle:
         	self.one_circle(self.cell, self.screen, self.colour)
         	self.number_in_circle(self.cell,self.screen,num_circles)
 
-
-
     @staticmethod
     def zero_circles(cell, screen, colour):
         return

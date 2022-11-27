@@ -23,16 +23,25 @@ class EventLoop:
     def draw_grid(self):
         return self.game.draw_grid
 
+    def increment_moves(self):
+        self.game.move_counter.increment()
+
+    def refresh_move_counter(self):
+        self.game.move_counter.refresh_screen()
+
     def reset_screen_and_redraw_grid(self):
         self.grid.screen.fill((255, 255, 255))
         Background(self.screen)
         DrawGrid(self.grid, self.screen)
+
+        self.refresh_move_counter()
+
         if self.grid.is_win():
             PlaySound("WIN_GAME")
 
-    # Define different event states in functions
     def start(self):
         clicked = False
+        moved = None
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -92,8 +101,11 @@ class EventLoop:
                         # pass into move class
                         moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
                                      direction=direction).make_move()
+                        print("moved is: ",moved)
 
-                        # if moved:
+                    if moved:
+                        self.increment_moves()
+                        moved = None
                     self.reset_screen_and_redraw_grid()
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_q:

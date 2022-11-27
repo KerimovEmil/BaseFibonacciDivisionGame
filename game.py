@@ -5,7 +5,7 @@ from draw_grid import DrawGrid
 from problem import Problem
 from background import Background
 from event_loop import EventLoop
-
+from move_counter import MoveCounter
 
 class Game:
     def __init__(self, window):
@@ -19,6 +19,7 @@ class Game:
         self.event_loop = None
         self.background = None
         self.draw_grid = None
+        self.move_counter = 0
 
     def start_game(self):
         self.screen.fill('white')
@@ -26,7 +27,11 @@ class Game:
         self.grid = self.build_grid_instance()
         self.background = self.build_background_image()
         self.draw_grid = self.build_draw_grid_instance()
+        self.move_counter = self.build_move_counter()
         self.build_user_event_loop()
+
+    def build_move_counter(self):
+    	return MoveCounter(self.screen)
 
     def build_problem(self):
         return Problem()
