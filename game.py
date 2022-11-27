@@ -7,6 +7,7 @@ from background import Background
 from event_loop import EventLoop
 from move_counter import MoveCounter
 
+
 class Game:
     def __init__(self, window):
         pygame.font.init()
@@ -31,7 +32,7 @@ class Game:
         self.build_user_event_loop()
 
     def build_move_counter(self):
-    	return MoveCounter(self.screen)
+        return MoveCounter(self.screen)
 
     def build_problem(self):
         return Problem()

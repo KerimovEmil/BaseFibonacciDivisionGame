@@ -1,7 +1,6 @@
 import unittest
 from typing import Union, List
 from math import log
-from random import randint
 from settings import DEBUG_MODE
 import pprint
 

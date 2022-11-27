@@ -7,6 +7,7 @@ from background import Background
 from move import Move
 from play_sound import PlaySound
 
+
 class EventLoop:
     def __init__(self, game):
         self.game = game
@@ -101,7 +102,7 @@ class EventLoop:
                         # pass into move class
                         moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
                                      direction=direction).make_move()
-                        print("moved is: ",moved)
+                        print("moved is: ", moved)
 
                     if moved:
                         self.increment_moves()
