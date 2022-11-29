@@ -1,8 +1,10 @@
 # Game Start Settings
 TITLE = "Fibonacci Base Division Game"
+GAME_NAME = "Base Fibonacci Division Game"
 BG_COLOR = (255, 255, 255)
 
 AXIS_COLOR = "blue"
+CIRCLE_COLOR = "blue"
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
@@ -10,7 +12,7 @@ START_X = 80
 START_Y = 80
 BLOCK_SIZE = 60
 DEBUG_MODE = True
-SKIP_MENU = False
+SKIP_MENU = True
 GAME_ICON_PATH = "./assets/fib_bg1.png"
 
 # Background Image Settings. Lower Alpha is more transparent
@@ -21,6 +23,8 @@ BABY_MODE = False
 # Problem setup
 LOWER_BOUND = 4
 UPPER_BOUND = 10
+
+HIGHLIGHT_MOVES = True
 
 
 class SoundFile:

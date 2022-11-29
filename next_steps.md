@@ -7,15 +7,14 @@ can move into or the direction it can move in)
 -> [Optional] Have an option for cells where a key can be pressed 
 and it will highlight all cells that have valid moves
 
--> MoveCounter
+-> MoveCounter [DONE]
 
--> Integrate Menu 
-    -> along with difficulty setting
+-> Menu [Have chosen difficulty modify the game grid size]
 
 -> MoveLog:
     -> Shows the "breakdown" of the move
 
--> Tutorial Page/section
+-> Tutorial Page/section [Have Tutorial Class (set of folders)]
 
 -> 
 
