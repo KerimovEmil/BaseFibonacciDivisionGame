@@ -45,81 +45,122 @@ class EventLoop:
         pygame.quit()
         sys.exit()
 
+    @staticmethod
+    def key_down():
+        print("key down")
+
+    def mouse_motion(self, event, clicked, clicked_cell, offset_x, offset_y):
+        """Returns the x and y position of the mouse plus offset"""
+        pos_x, pos_y = None, None
+
+        if clicked:
+            mouse_x, mouse_y = event.pos
+            if clicked_cell:
+                pos_x = mouse_x + offset_x
+                pos_y = mouse_y + offset_y
+                self.reset_screen_and_redraw_grid()
+                pygame.draw.circle(self.grid.screen, 'blue', (pos_x, pos_y), 0.6 * BLOCK_SIZE / 2)
+
+        return pos_x, pos_y
+
+    def mouse_down(self, event):
+        """Returns the x and y position of the mouse plus offset"""
+        print("mouse down")
+        clicked_cell = self.mouse_position_collide_with_piece(event)
+
+        clicked = False
+        pos_x = pos_y = offset_x = offset_y = None
+
+        if clicked_cell:
+            clicked = True
+            mouse_x, mouse_y = event.pos
+            offset_x = clicked_cell.rect_obj.center[0] - mouse_x
+            offset_y = clicked_cell.rect_obj.center[1] - mouse_y
+            pos_x = clicked_cell.rect_obj.center[0]
+            pos_y = clicked_cell.rect_obj.center[1]
+
+        return clicked, clicked_cell, pos_x, pos_y, offset_x, offset_y
+
+    def mouse_up_and_clicked(self, clicked_cell, pos_x, pos_y) -> bool:
+        """
+        Logic of what to do when the circle was let go.
+        Args:
+            clicked_cell: previous cell that was clicked
+            pos_x: the x position of where the circle was dropped
+            pos_y: the y position of where the circle was dropped
+
+        Returns: boolean weather the move happened or not
+
+        """
+        print("mouse up")
+        new_cell = None
+
+        # undo the visual
+        clicked_cell.value += 1
+
+        # find cell that user dropped mouse in
+        for cell in self.grid.cells():
+            if cell.collide_point((pos_x, pos_y)):
+                new_cell = cell
+                break
+
+        # figure out implied direction (maybe method in move class)
+        if clicked_cell.distance(new_cell) != 1:
+            return False
+
+        if new_cell.grid_row_pos > clicked_cell.grid_row_pos:
+            direction = 'DOWN'
+        elif new_cell.grid_row_pos < clicked_cell.grid_row_pos:
+            direction = 'UP'
+        elif new_cell.grid_col_pos < clicked_cell.grid_col_pos:
+            direction = 'LEFT'
+        else:
+            direction = 'RIGHT'
+
+        print(f'clicked_row:{clicked_cell.grid_row_pos}, clicked_col:{clicked_cell.grid_col_pos},'
+              f'new_cell_row:{new_cell.grid_row_pos}, new_cell_col:{new_cell.grid_col_pos},'
+              f'direction: {direction}')
+
+        # pass into move class
+        moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
+                     direction=direction).make_move()
+        print("moved is: ", moved)
+
+        return moved
+
     def start(self):
         clicked = False
-        moved = None
         clicked_cell = None
-        offset_x, offset_y = None, None
-        pos_x, pos_y = None, None
+        offset_x = offset_y = None
+        pos_x = pos_y = None
 
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
+
                 if event.type == keys.MOUSEMOTION:
-                    if clicked:
-                        mouse_x, mouse_y = event.pos
-                        if clicked_cell:
-                            pos_x = mouse_x + offset_x
-                            pos_y = mouse_y + offset_y
-                            self.reset_screen_and_redraw_grid()
-                            pygame.draw.circle(self.grid.screen, 'blue', (pos_x, pos_y), 0.6 * BLOCK_SIZE / 2)
+                    pos_x, pos_y = self.mouse_motion(event, clicked, clicked_cell, offset_x, offset_y)
 
                 if event.type == keys.KEYDOWN:
-                    print("keydown")
-                if event.type == keys.MOUSEBUTTONDOWN and event.button == 1:
-                    print("mouse down")
-                    clicked_cell = self.mouse_position_collide_with_piece(event)
+                    self.key_down()
 
-                    if clicked_cell:
-                        clicked = True
-                        mouse_x, mouse_y = event.pos
-                        offset_x = clicked_cell.rect_obj.center[0] - mouse_x
-                        offset_y = clicked_cell.rect_obj.center[1] - mouse_y
-                        pos_x = clicked_cell.rect_obj.center[0]
-                        pos_y = clicked_cell.rect_obj.center[1]
+                if event.type == keys.MOUSEBUTTONDOWN and event.button == 1:
+                    clicked, clicked_cell, pos_x, pos_y, offset_x, offset_y = self.mouse_down(event)
 
                 if event.type == keys.MOUSEBUTTONUP and clicked:
-                    print("mouse up")
+                    moved = self.mouse_up_and_clicked(clicked_cell, pos_x, pos_y)
+
                     clicked = False
-                    new_cell = None
-                    # undo the visual
-                    clicked_cell.value += 1
-
-                    # find cell that user dropped mouse in
-                    for cell in self.grid.cells():
-                        if cell.collide_point((pos_x, pos_y)):
-                            new_cell = cell
-                            break
-
-                    # figure out implied direction (maybe method in move class)
-                    if clicked_cell.distance(new_cell) != 1:
-                        pass
-                    else:
-                        if new_cell.grid_row_pos > clicked_cell.grid_row_pos:
-                            direction = 'DOWN'
-                        elif new_cell.grid_row_pos < clicked_cell.grid_row_pos:
-                            direction = 'UP'
-                        elif new_cell.grid_col_pos < clicked_cell.grid_col_pos:
-                            direction = 'LEFT'
-                        else:
-                            direction = 'RIGHT'
-                        print(f'clicked_row:{clicked_cell.grid_row_pos}, clicked_col:{clicked_cell.grid_col_pos},'
-                              f'new_cell_row:{new_cell.grid_row_pos}, new_cell_col:{new_cell.grid_col_pos},'
-                              f'direction: {direction}')
-                        # pass into move class
-                        moved = Move(self.grid, cell_y=clicked_cell.grid_row_pos, cell_x=clicked_cell.grid_col_pos,
-                                     direction=direction).make_move()
-                        print("moved is: ", moved)
+                    pos_x = pos_y = offset_x = offset_y = None
 
                     if moved:
                         self.increment_moves()
-                        moved = None
 
                     self.reset_screen_and_redraw_grid()
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                    sys.exit()
+                    self.quit()
 
             pygame.display.update()
 
