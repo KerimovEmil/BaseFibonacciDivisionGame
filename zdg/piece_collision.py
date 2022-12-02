@@ -12,7 +12,7 @@ class PieceCollision:
 
     def collides_with_piece(self):
         for cell in self.grid.non_empty_cells():
-            if cell.collide_point(self.event.pos) == False:
+            if not cell.collide_point(self.event.pos):
                 continue
             self.replace_piece_color(cell)
             cell.value -= 1
