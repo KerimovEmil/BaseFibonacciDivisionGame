@@ -1,7 +1,6 @@
 from zdg.event import Event
 from zdg.clicked_piece import ClickedPiece
 from zdg.move import Move
-import pdb
 
 
 class MouseUpEvent(Event):
