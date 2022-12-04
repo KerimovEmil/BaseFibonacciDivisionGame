@@ -18,7 +18,8 @@ class MouseMotionEvent(Event):
         screen = self.grid.screen
         color = 'blue'
         block_size = 0.6 * BLOCK_SIZE / 2
-        pos = (self.event.pos[0], self.event.pos[1])
+        pos = self.event.pos
+        # pos = (self.event.pos[0], self.event.pos[1])
 
         pygame.draw.circle(screen, color, pos, block_size)
 
