@@ -4,6 +4,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 bdfg.sublime-project
+bdfg.sublime-workspace
 # C extensions
 *.so
 
