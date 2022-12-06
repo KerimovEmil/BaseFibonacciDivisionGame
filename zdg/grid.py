@@ -1,5 +1,5 @@
-from zeckendorf_div_game.settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
-from zeckendorf_div_game.cell import Cell
+from zdg.settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
+from zdg.cell import Cell
 from pygame import Surface
 
 
@@ -47,7 +47,7 @@ class Grid:
             print()
 
     def build_initial_array_of_cells(self):
-        return [[Cell(value=0, grid_row_pos=i, grid_col_pos=j) for j in range(self.width)] for i in range(self.height)]
+        return [[Cell(value=0, row=i, col=j) for j in range(self.width)] for i in range(self.height)]
 
     def populate_initial_state_of_last_row(self):
         for x, x_pos in enumerate(range(START_X, self.end_x, BLOCK_SIZE)):

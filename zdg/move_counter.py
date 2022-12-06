@@ -1,4 +1,4 @@
-from zeckendorf_div_game.font_settings import MOVE_COUNTER_FONT
+from zdg.font_settings import MOVE_COUNTER_FONT
 
 
 class MoveCounter:

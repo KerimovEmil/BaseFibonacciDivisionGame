@@ -1,6 +1,6 @@
-from zeckendorf_div_game.util import convert_decimal_to_base_fib, debug_helper_print_attributes
+from zdg.util import convert_decimal_to_base_fib, debug_helper_print_attributes
 from random import randint
-from zeckendorf_div_game.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
+from zdg.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
 
 
 class Problem:
@@ -20,7 +20,8 @@ class Problem:
         fib_quotient is ... of quotient  (111)
     """
 
-    def __init__(self, lower=LOWER_BOUND, upper=UPPER_BOUND):
+    def __init__(self, lower=LOWER_BOUND, upper=UPPER_BOUND, difficulty=0):
+        self.difficulty = difficulty
         # defining the problem
         self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
 

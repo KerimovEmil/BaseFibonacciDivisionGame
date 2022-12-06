@@ -1,5 +1,5 @@
 import unittest
-from zeckendorf_div_game.util import zeckendorf_n_term, convert_decimal_to_base_fib
+from zdg.util import zeckendorf_n_term, convert_decimal_to_base_fib
 
 
 class TestUtils(unittest.TestCase):
