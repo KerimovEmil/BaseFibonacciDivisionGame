@@ -21,6 +21,8 @@ class Game:
         self.background = None
         self.draw_grid = None
         self.move_counter = 0
+        self.difficulty = window.difficulty
+        self.game_over = False
 
     def start_game(self):
         self.screen.fill('white')
@@ -35,7 +37,7 @@ class Game:
         return MoveCounter(self.screen)
 
     def build_problem(self):
-        return Problem()
+        return Problem(difficulty=self.difficulty)
 
     def build_grid_instance(self):
         return Grid(

@@ -20,9 +20,20 @@ class Problem:
         fib_quotient is ... of quotient  (111)
     """
 
-    def __init__(self, lower=LOWER_BOUND, upper=UPPER_BOUND):
+    def __init__(self, difficulty=None, lower=LOWER_BOUND, upper=UPPER_BOUND):
         # defining the problem
-        self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
+        print(f'Difficulty: {difficulty}')
+        if difficulty is None:
+            self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
+        # also consider other things to make it harder. i.e. prime numbers or not showing red circles just rows
+        elif difficulty == 1:  # easy
+            self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
+        elif difficulty == 2:  # medium
+            self.divisor, self.quotient, self.dividend = self.build_random_problem(lower + 3, upper + 3)
+        elif difficulty == 3:  # hard
+            self.divisor, self.quotient, self.dividend = self.build_random_problem(lower + 6, upper + 6)
+        else:
+            self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
 
         # converting to base fib
         self.fib_dividend = convert_decimal_to_base_fib(self.dividend)

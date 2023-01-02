@@ -39,6 +39,8 @@ class EventLoop:
 
         if self.grid.is_win():
             PlaySound("WIN_GAME")
+            self.game.game_over = True
+            # todo add win screen with self.name and move counter
 
     @staticmethod
     def quit():
@@ -52,7 +54,7 @@ class EventLoop:
         offset_x, offset_y = None, None
         pos_x, pos_y = None, None
 
-        while True:
+        while not self.game.game_over:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()

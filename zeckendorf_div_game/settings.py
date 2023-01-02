@@ -22,6 +22,9 @@ BABY_MODE = False
 LOWER_BOUND = 4
 UPPER_BOUND = 10
 
+# SOUND
+VOLUME = 0.7
+
 
 class SoundFile:
     VALID_MOVE = './sounds/valid_sound.mp3'
