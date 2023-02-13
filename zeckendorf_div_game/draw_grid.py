@@ -64,7 +64,7 @@ class DrawGrid:
                 if cell.value == 1 and cell.solution:
                     colour = 'yellow'
                 else:
-                    colour = pygame.Color(0, 50, 0)  # green
+                    colour = pygame.Color(0, 50, 0)  # dark green
 
                 dc = DrawCircle(cell, self.screen, colour=colour)
                 dc.draw_circle_in_cell()
