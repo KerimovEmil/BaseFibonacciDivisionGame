@@ -1,4 +1,4 @@
-from zeckendorf_div_game.settings import SoundFile, VOLUME
+from zdg.settings import SoundFile, VOLUME
 from pygame import mixer
 
 

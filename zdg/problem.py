@@ -1,6 +1,6 @@
-from zeckendorf_div_game.util import convert_decimal_to_base_fib, debug_helper_print_attributes
+from zdg.util import convert_decimal_to_base_fib, debug_helper_print_attributes
 from random import randint
-from zeckendorf_div_game.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
+from zdg.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
 
 
 class Problem:

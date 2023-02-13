@@ -1,10 +1,10 @@
-from zeckendorf_div_game.settings import BLOCK_SIZE
 import pygame
-from zeckendorf_div_game.font_settings import CIRCLE_FONT
+
+from zdg.font_settings import CIRCLE_FONT
+from zdg.settings import BLOCK_SIZE
 
 
 class DrawCircle:
-
     def __init__(self, cell, screen, colour='red'):
         self.cell = cell
         self.screen = screen

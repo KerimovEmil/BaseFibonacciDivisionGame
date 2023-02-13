@@ -1,6 +1,6 @@
 from typing import Union, List
 from math import log
-from zeckendorf_div_game.settings import DEBUG_MODE
+from zdg.settings import DEBUG_MODE
 import pprint
 
 

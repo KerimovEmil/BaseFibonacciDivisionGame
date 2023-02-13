@@ -1,23 +1,33 @@
 ## Next Steps: 
 
--> Upon a cell being clicked, highlight possible moves (cells they
-can move into or the direction it can move in)
-(should be stored in ShowValidMoves class)
+Tutorial 
+-> Screenshots are displayed which show various moves
+that can be made within the game
 
--> [Optional] Have an option for cells where a key can be pressed 
-and it will highlight all cells that have valid moves
+Highlight Possible Moves on Cell being Clicked
+ -> HighlightMoves/ShowValid Moves class
+ -> display cells that the cell can move into
 
--> MoveCounter
+### Update Design
+Refined Tiles
+-> Refined tiles(images) for cells in place of the rectangle
+-> See 2048 and others as a design reference of sorts
 
--> Integrate Menu 
-    -> along with difficulty setting
+Difficulty modifies the Grid Size or Problem Selection otherwise
 
--> MoveLog:
-    -> Shows the "breakdown" of the move
+### Move Log:
+-> Collapsible Log/Panel that after a move is made, shows 
+-> This may not be very useful
 
--> Tutorial Page/section
+### Different Rule Sets/Sequences
+-> The use of base fibonacci presents 4 clear rules for conversions.
+But what about if the bases and the rules are different? Allow for injection of different rules to change up the game format.
 
--> 
+### Solution
+* Calculate the Optimal Path (Smallest Number of Moves) to reach the solution
+
+* Show a Visualization of the Solution
+    * Automatically 
 
 
-
+* Try and deploy within a python environment in a live site somehow. Perhaps in a self-contained container where user clicks/actions can be registered properly.

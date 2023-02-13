@@ -1,11 +1,11 @@
 import pygame
 
-from zeckendorf_div_game.grid import Grid
-from zeckendorf_div_game.draw_grid import DrawGrid
-from zeckendorf_div_game.problem import Problem
-from zeckendorf_div_game.background import Background
-from zeckendorf_div_game.event_loop import EventLoop
-from zeckendorf_div_game.move_counter import MoveCounter
+from zdg.grid import Grid
+from zdg.draw_grid import DrawGrid
+from zdg.problem import Problem
+from zdg.background import Background
+from zdg.event_loop import EventLoop
+from zdg.move_counter import MoveCounter
 
 
 class Game:
