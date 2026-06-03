@@ -1,33 +1,31 @@
-## Next Steps: 
+# Next Steps
 
-Tutorial 
--> Screenshots are displayed which show various moves
-that can be made within the game
+## ✅ Done in the 2.0 redesign
 
-Highlight Possible Moves on Cell being Clicked
- -> HighlightMoves/ShowValid Moves class
- -> display cells that the cell can move into
+- Beautiful, animated UI: gradient tiles, shadows, pop animations, glowing target
+  slots, win confetti, redesigned menu + HUD.
+- Valid-move highlighting when a tile is clicked (real `ShowValidMoves`).
+- Interactive **How to Play** tutorial illustrating the four moves.
+- Difficulty (Easy/Medium/Hard) now changes the numbers and board size.
+- Collapsible move log.
+- Solver-powered **Hint** and animated **Solve** (optimal path), plus an
+  **optimal move count** in the HUD.
+- **Undo / Redo / Reset** via state-snapshot history.
+- Web build: runs in the browser via pygbag (async loop, no blocking mainloops).
+- Pure `rules.py` shared by gameplay and solver; unit tests for rules + solver.
 
-### Update Design
-Refined Tiles
--> Refined tiles(images) for cells in place of the rectangle
--> See 2048 and others as a design reference of sorts
+## 🔧 Known limitation / next up
 
-Difficulty modifies the Grid Size or Problem Selection otherwise
+- **Solver scaling on Hard:** the BFS solver can hit its node cap on the largest
+  Hard puzzles, so Hint / Solve / Optimal occasionally read as unavailable. The
+  UI handles `None` gracefully, but the fix is a smarter search
+  (bidirectional BFS or A\* with an admissible heuristic). Lowering the Hard upper
+  bound is a quick interim mitigation.
 
-### Move Log:
--> Collapsible Log/Panel that after a move is made, shows 
--> This may not be very useful
+## 💡 Future ideas
 
-### Different Rule Sets/Sequences
--> The use of base fibonacci presents 4 clear rules for conversions.
-But what about if the bases and the rules are different? Allow for injection of different rules to change up the game format.
-
-### Solution
-* Calculate the Optimal Path (Smallest Number of Moves) to reach the solution
-
-* Show a Visualization of the Solution
-    * Automatically 
-
-
-* Try and deploy within a python environment in a live site somehow. Perhaps in a self-contained container where user clicks/actions can be registered properly.
+- **Different rule sets / sequences:** `rules.py` is already isolated as a single
+  source of truth — generalize it to inject alternate bases/identities.
+- Per-puzzle persistent best scores / daily challenge.
+- Deploy the web build to a live site (GitHub Pages / Netlify) from `build/web`.
+- Optional move-by-move animation of split/merge (currently a pop on change).

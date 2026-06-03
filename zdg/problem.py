@@ -1,45 +1,37 @@
-from zdg.util import convert_decimal_to_base_fib, debug_helper_print_attributes
+"""Generates a random division problem and its Zeckendorf representations."""
 from random import randint
-from zdg.settings import BABY_MODE, LOWER_BOUND, UPPER_BOUND
+from zdg.util import convert_decimal_to_base_fib
+from zdg.settings import DIFFICULTIES, DEFAULT_DIFFICULTY
 
 
 class Problem:
     """
-    Handles the logic for creating a random problem
-    (or game level) and storing the values associated
-    with that problem
+    A division problem ``dividend = divisor * quotient`` together with the
+    Zeckendorf (base-Fibonacci) representation of each value.
 
-    Attributes:
-        E.g. 30/4 = 7.
-        dividend   is 30
-        divisor    is 4
-        quotient   is 7
-
-        fib_dividend is Zeckendorf representation of dividend (1010001)
-        fib_divisor is .. of divisor (100)
-        fib_quotient is ... of quotient  (111)
+    Example: 32 / 4 = 8
+        dividend 32 -> fib '1010100'
+        divisor   4 -> fib '101'
+        quotient  8 -> fib '10000'
     """
 
-    def __init__(self, lower=LOWER_BOUND, upper=UPPER_BOUND, difficulty=0):
+    def __init__(self, difficulty=DEFAULT_DIFFICULTY, lower=None, upper=None):
         self.difficulty = difficulty
-        # defining the problem
-        self.divisor, self.quotient, self.dividend = self.build_random_problem(lower, upper)
+        lo, hi = DIFFICULTIES.get(difficulty, DIFFICULTIES[DEFAULT_DIFFICULTY])
+        if lower is not None:
+            lo = lower
+        if upper is not None:
+            hi = upper
 
-        # converting to base fib
+        self.divisor, self.quotient, self.dividend = self._build(lo, hi)
         self.fib_dividend = convert_decimal_to_base_fib(self.dividend)
         self.fib_divisor = convert_decimal_to_base_fib(self.divisor)
         self.fib_quotient = convert_decimal_to_base_fib(self.quotient)
 
-        debug_helper_print_attributes(self)
-
     @staticmethod
-    def build_random_problem(lower, upper) -> (int, int, int):
-        if BABY_MODE:
-            lower, upper = 4, 4
-
+    def _build(lower, upper):
         a = randint(lower, upper)
         b = randint(lower, upper)
-
         return min(a, b), max(a, b), a * b
 
     @property
@@ -50,5 +42,6 @@ class Problem:
     def grid_width(self):
         return len(self.fib_dividend)
 
-    def grid_last_row(self):
-        return self.fib_dividend
+    @property
+    def label(self):
+        return f"{self.dividend} = {self.divisor} × {self.quotient}"

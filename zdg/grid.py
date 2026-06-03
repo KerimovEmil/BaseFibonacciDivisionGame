@@ -1,72 +1,93 @@
-from zdg.settings import START_X, START_Y, BLOCK_SIZE, DEBUG_MODE
+"""The puzzle model: a grid of :class:`Cell` plus win logic and move application.
+
+Rendering and input live elsewhere; this class only knows about tile values and
+which cells form the target ("solution") configuration.
+"""
 from zdg.cell import Cell
-from pygame import Surface
+from zdg import rules
 
 
 class Grid:
-    def __init__(self, screen: Surface, width: int, height: int, problem):
-        self.screen = screen
+    def __init__(self, width: int, height: int, problem):
         self.width = width
         self.height = height
-        # self.last_row = last_row
+        self.problem = problem
         self.fib_dividend = problem.fib_dividend
         self.fib_divisor = problem.fib_divisor
         self.fib_quotient = problem.fib_quotient
 
-        self.end_x = START_X + self.width * BLOCK_SIZE
-        self.end_y = START_Y + self.height * BLOCK_SIZE
+        self.array = self._build_cells()
+        self._seed_last_row()
+        self._mark_solution_cells()
 
-        self.array = self.build_initial_array_of_cells()
-        self.populate_initial_state_of_last_row()
-        self.populate_solution()
+    # ----- construction ---------------------------------------------------
+    def _build_cells(self):
+        return [[Cell(value=0, row=i, col=j) for j in range(self.width)]
+                for i in range(self.height)]
 
-        if DEBUG_MODE:
-            self.print()
-
-    @property
-    def num_solution_cells(self) -> int:
-        """Return number of solution cells"""
-        return self.fib_divisor.count('1') * self.fib_quotient.count('1')
-
-    def is_win(self):
-        """Returns if the position is a win"""
-        ls_non_empty = self.non_empty_cells()
-
-        if len(ls_non_empty) != self.num_solution_cells:
-            return False
-
-        for cell in ls_non_empty:
-            if (cell.value != 1) or (not cell.solution):
-                return False
-        return True
-
-    def print(self):
-        for row in self.array:
-            for cell in row:
-                print(cell.value, end="")
-            print()
-
-    def build_initial_array_of_cells(self):
-        return [[Cell(value=0, row=i, col=j) for j in range(self.width)] for i in range(self.height)]
-
-    def populate_initial_state_of_last_row(self):
-        for x, x_pos in enumerate(range(START_X, self.end_x, BLOCK_SIZE)):
+    def _seed_last_row(self):
+        for x in range(self.width):
             if self.fib_dividend[x] == '1':
-                self.array[self.height - 1][x].change_value(add=1)
+                self.array[self.height - 1][x].value += 1
 
-    def populate_solution(self):
-        for x, x_pos in enumerate(self.fib_quotient[::-1]):
-            for y, y_pos in enumerate(self.fib_divisor):
-                if y_pos == '1' and x_pos == '1':
-                    cell = self.array[y][-1 - x]
-                    cell.solution = True
+    def _mark_solution_cells(self):
+        for x, x_bit in enumerate(self.fib_quotient[::-1]):
+            for y, y_bit in enumerate(self.fib_divisor):
+                if y_bit == '1' and x_bit == '1':
+                    self.array[y][-1 - x].solution = True
 
+    # ----- state access ---------------------------------------------------
     def cells(self):
         return [cell for row in self.array for cell in row]
 
-    def non_empty_cells(self) -> list:
-        res = []
-        for cell in self.cells():
-            if cell.value > 0:
-                res.append(cell)
-        return res
+    def non_empty_cells(self):
+        return [c for c in self.cells() if c.value > 0]
+
+    def state(self):
+        """Plain 2D list of tile counts (the canonical state for rules/solver)."""
+        return [[c.value for c in row] for row in self.array]
+
+    def set_state(self, state):
+        for r, row in enumerate(state):
+            for c, value in enumerate(row):
+                self.array[r][c].value = value
+
+    def solution_mask(self):
+        return tuple(tuple(c.solution for c in row) for row in self.array)
+
+    @property
+    def num_solution_cells(self) -> int:
+        return self.fib_divisor.count('1') * self.fib_quotient.count('1')
+
+    # ----- moves ----------------------------------------------------------
+    def apply_move(self, row, col, direction) -> bool:
+        if not rules.is_valid(self.state(), row, col, direction):
+            return False
+        self.set_state(rules.apply(self.state(), row, col, direction))
+        return True
+
+    def legal_targets(self, row, col):
+        """Adjacent cells (row, col) the tile at (row, col) may move into."""
+        targets = []
+        state = self.state()
+        for direction in rules.DIRECTIONS:
+            if rules.is_valid(state, row, col, direction):
+                dr, dc = rules.DELTA[direction]
+                targets.append((row + dr, col + dc))
+        return targets
+
+    # ----- win ------------------------------------------------------------
+    def is_win(self) -> bool:
+        return is_win_state(self.state(), self.solution_mask())
+
+
+def is_win_state(state, mask) -> bool:
+    """A win: every solution cell holds exactly 1, every other cell holds 0."""
+    for r, row in enumerate(state):
+        for c, value in enumerate(row):
+            if mask[r][c]:
+                if value != 1:
+                    return False
+            elif value != 0:
+                return False
+    return True
