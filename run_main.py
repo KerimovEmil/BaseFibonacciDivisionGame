@@ -1,4 +1,6 @@
-from zdg.window import Window
+"""Backwards-compatible desktop launcher. Prefer `python main.py`."""
+import asyncio
+from zdg.app import main
 
 if __name__ == '__main__':
-    w = Window()
+    asyncio.run(main())

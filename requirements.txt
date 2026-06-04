@@ -1,2 +1,3 @@
-pygame==2.1.2
-pygame-menu==4.2.8
+pygame>=2.5
+# Optional — only needed to build the browser/WASM version (see README):
+# pygbag>=0.9

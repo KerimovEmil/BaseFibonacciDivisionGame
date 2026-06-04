@@ -1,7 +1,5 @@
 from typing import Union, List
 from math import log
-from zdg.settings import DEBUG_MODE
-import pprint
 
 
 def fibonacci_n_term(n: int) -> Union[int, NotImplementedError]:
@@ -19,11 +17,6 @@ def zeckendorf_n_term(n: int) -> Union[int, NotImplementedError]:
 
 def get_first_n_zeckendorf_terms(n: int) -> List[int]:
     return [zeckendorf_n_term(i) for i in range(1, n + 1)]
-
-
-def debug_helper_print_attributes(obj):
-    if DEBUG_MODE:
-        pprint.pprint(vars(obj))
 
 
 def convert_decimal_to_base_fib(n: int) -> str:
