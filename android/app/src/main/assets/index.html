@@ -33,19 +33,19 @@ async def custom_site():
 
     # the C or js loader could do that but be explicit.
     appdir = Path(f"/data/data/{bundle}") # /data/data/basefibonaccidivisiongame
-    appdir.mkdir()
+    appdir.mkdir(exist_ok=True)
 
+    # Pre-import pygame.font which is needed by zdg/theme.py but not auto-loaded in WASM
+    import pygame.font
 
-    # unpack filesystem from compressed archive into work dir
-    if platform.window.location.host.find('.itch.zone')>0:
-        import zipfile
-        async with platform.fopen("basefibonaccidivisiongame.apk", "rb") as archive:
-            with zipfile.ZipFile(archive) as zip_ref:
-                zip_ref.extractall(appdir.as_posix())
-    else:
+    # If the archive was pre-loaded into MEMFS by the JS preRun callback,
+    # extract it using Python's built-in open() (reads from MEMFS directly).
+    # We use open() instead of platform.fopen() to avoid network fetch on mobile.
+    lib_archive = "/basefibonaccidivisiongame.tar.gz"
+    if not (appdir / "assets").exists():
         import tarfile
-        async with platform.fopen("basefibonaccidivisiongame.tar.gz", "rb") as archive:
-            tar = tarfile.open(fileobj=archive, mode="r:gz")
+        with open(lib_archive, "rb") as f:
+            tar = tarfile.open(fileobj=f, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
 
@@ -284,7 +284,7 @@ function show_infobox() {
 */
     </script>
 
-    <script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>
+    <script>globalThis.BrowserFS = { BFSRequire: () => ({ initialize: (cb) => cb() }) }</script>
 
 </head>
 
@@ -389,19 +389,28 @@ frameborder="1"
         box.hidden =  debug_hidden
 
         show_infobox()
+
+        // Pre-load game archive into MEMFS root so Python open() can find it.
+        Module.preRun.push(async function () {
+            const url = "http://localhost/android_asset/basefibonaccidivisiongame.archive"
+            const dst = "/basefibonaccidivisiongame.tar.gz"
+            try {
+                const resp = await fetch(url)
+                if (!resp.ok) throw new Error("HTTP " + resp.status)
+                const buf = await resp.arrayBuffer()
+                FS.writeFile(dst, new Uint8Array(buf))
+                console.log("Archive pre-loaded into FS:", dst, buf.byteLength + " bytes")
+            } catch (e) {
+                console.error("Failed to pre-load archive:", e)
+            }
+        })
+
+
     }
 
-    function custom_prerun(){
-        // no python main and no (MEMFS + VFS) yet.
-        console.log(__FILE__, "custom_prerun")
 
-    }
 
-    function custom_postrun(){
-        // python main and no VFS filesystem yet.
-        console.log(__FILE__, "custom_postrun")
 
-    }
 
     function debug() {
         // allow to gain access to dev tools from js console
