@@ -72,7 +72,8 @@ class MainActivity : AppCompatActivity() {
                         val inputStream: InputStream = assets.open(assetPath)
                         val mimeType = when {
                             assetPath.endsWith(".tar.gz") -> "application/gzip"
-                            assetPath.endsWith(".apk") -> "application/octet-stream"
+                            assetPath.endsWith(".archive") -> "application/gzip"
+                            assetPath.endsWith(".pygbag") -> "application/zip"
                             assetPath.endsWith(".png") -> "image/png"
                             assetPath.endsWith(".html") -> "text/html"
                             assetPath.endsWith(".js") -> "application/javascript"
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 // Intercept CDN archive requests - serve from local assets
                 val cdnPrefix = "https://pygame-web.github.io/cdn/0.9.3/basefibonaccidivisiongame"
                 if (urlStr.startsWith(cdnPrefix)) {
-                    val fileNames = listOf("basefibonaccidivisiongame.archive", "basefibonaccidivisiongame.tar.gz")
+                    val fileNames = listOf("basefibonaccidivisiongame.archive", "basefibonaccidivisiongame.tar.gz", "basefibonaccidivisiongame.pygbag")
                     for (fileName in fileNames) {
                         try {
                             val inputStream: InputStream = assets.open(fileName)
