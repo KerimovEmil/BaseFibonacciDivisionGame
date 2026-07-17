@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        onBackPressedDispatcher.addCallback(this) { }
+        onBackPressedDispatcher.addCallback(this) { finish() }
 
         val webView = WebView(this)
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
