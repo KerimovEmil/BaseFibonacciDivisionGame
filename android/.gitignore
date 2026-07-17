@@ -4,5 +4,4 @@ app/build/
 local.properties
 *.iml
 .idea/
-.gradle/
 gradle/wrapper/gradle-wrapper.jar
