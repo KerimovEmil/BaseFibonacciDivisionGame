@@ -21,6 +21,7 @@ class BoardView:
         self._rects = {}            # (r, c) -> pygame.Rect
         self._pulse = 0.0
         self._pops = {}             # (r, c) -> remaining seconds
+        self._flights = []          # list of dict(src, dst, elapsed, duration)
         self._prev_state = grid.state()
 
     # ----- layout ---------------------------------------------------------
@@ -54,12 +55,57 @@ class BoardView:
         return self._rects[(r, c)].center
 
     # ----- animation ------------------------------------------------------
+    def record_move(self, row: int, col: int, direction: str):
+        """Spawn directional split/merge slide animations for a move."""
+        h, w = self.grid.height, self.grid.width
+        dur = ANIM_MS / 1000.0
+        pairs = []
+        if direction == "RIGHT":
+            if col == w - 2:
+                pairs.append(((row, col), (row, col + 1)))
+            else:
+                pairs.append(((row, col), (row, col + 1)))
+                pairs.append(((row, col), (row, col + 2)))
+        elif direction == "DOWN":
+            if row == h - 2:
+                pairs.append(((row, col), (row + 1, col)))
+            else:
+                pairs.append(((row, col), (row + 1, col)))
+                pairs.append(((row, col), (row + 2, col)))
+        elif direction == "LEFT":
+            if col == w - 1:
+                pairs.append(((row, col), (row, col - 1)))
+            else:
+                pairs.append(((row, col), (row, col - 1)))
+                pairs.append(((row, col + 1), (row, col - 1)))
+        elif direction == "UP":
+            if row == h - 1:
+                pairs.append(((row, col), (row - 1, col)))
+            else:
+                pairs.append(((row, col), (row - 1, col)))
+                pairs.append(((row + 1, col), (row - 1, col)))
+
+        for src, dst in pairs:
+            if src in self._rects and dst in self._rects:
+                self._flights.append({
+                    "src": src,
+                    "dst": dst,
+                    "elapsed": 0.0,
+                    "duration": dur,
+                })
+
     def update(self, dt):
         self._pulse += dt
         for key in list(self._pops):
             self._pops[key] -= dt
             if self._pops[key] <= 0:
                 del self._pops[key]
+        alive = []
+        for f in self._flights:
+            f["elapsed"] += dt
+            if f["elapsed"] < f["duration"]:
+                alive.append(f)
+        self._flights = alive
 
     def _detect_changes(self):
         state = self.grid.state()
@@ -81,6 +127,7 @@ class BoardView:
         if hint:
             self._draw_hint(surface, hint)
         self._draw_tiles(surface, selected, skip_cell)
+        self._draw_flights(surface)
         if drag is not None:
             self._draw_drag_ghost(surface, *drag)
 
@@ -162,11 +209,14 @@ class BoardView:
         return TILE_LIVE
 
     def _draw_tiles(self, surface, selected, skip_cell):
+        in_flight_dsts = {f["dst"] for f in self._flights}
         for (r, c), rect in self._rects.items():
             cell = self.grid.array[r][c]
             if cell.value <= 0:
                 continue
             if skip_cell == (r, c):
+                continue
+            if (r, c) in in_flight_dsts and cell.value == 1:
                 continue
             scale = 1.0
             if (r, c) in self._pops:
@@ -175,12 +225,34 @@ class BoardView:
             self._blit_tile(surface, rect, cell, scale,
                             outlined=(selected == (r, c)))
 
+    def _draw_flights(self, surface):
+        for f in self._flights:
+            src_rect = self._rects.get(f["src"])
+            dst_rect = self._rects.get(f["dst"])
+            if not src_rect or not dst_rect:
+                continue
+            raw_t = min(1.0, max(0.0, f["elapsed"] / max(0.001, f["duration"])))
+            # Cubic ease-out
+            t = 1.0 - (1.0 - raw_t) ** 3
+            cx = int(src_rect.centerx + (dst_rect.centerx - src_rect.centerx) * t)
+            cy = int(src_rect.centery + (dst_rect.centery - src_rect.centery) * t)
+            dst_cell = self.grid.array[f["dst"][0]][f["dst"][1]]
+            size = int(self.block - TILE_GAP * 2)
+            grad_top, grad_bottom = self._tile_colors(dst_cell)
+            tile = theme.tile_surface(size, grad_top, grad_bottom,
+                                      radius=max(8, size // 6))
+            pos = (cx - size // 2, cy - size // 2)
+            theme.draw_shadow(surface, pygame.Rect(*pos, size, size),
+                              radius=size // 6, offset=(0, 5), spread=7, alpha=85)
+            surface.blit(tile, pos)
+
     def _blit_tile(self, surface, rect, cell, scale=1.0, outlined=False, alpha=255):
         size = int((self.block - TILE_GAP * 2) * scale)
         grad_top, grad_bottom = self._tile_colors(cell)
         tile = theme.tile_surface(size, grad_top, grad_bottom,
-                                  radius=max(8, size // 6)).copy()
+                                  radius=max(8, size // 6))
         if alpha < 255:
+            tile = tile.copy()
             tile.set_alpha(alpha)
         pos = (rect.centerx - size // 2, rect.centery - size // 2)
         theme.draw_shadow(surface, pygame.Rect(*pos, size, size),
@@ -204,3 +276,8 @@ class BoardView:
                           pygame.Rect(pos[0] - size // 2, pos[1] - size // 2, size, size),
                           radius=size // 6, offset=(0, 8), spread=10, alpha=110)
         surface.blit(tile, (pos[0] - size // 2, pos[1] - size // 2))
+        if cell.value > 1:
+            theme.text(surface, cell.value,
+                       theme.get_font(max(18, size // 2), True),
+                       TILE_TEXT, center=pos)
+

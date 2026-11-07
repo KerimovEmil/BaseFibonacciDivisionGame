@@ -67,17 +67,25 @@ def rounded_rect(surface, rect, color, radius=12, width=0):
     pygame.draw.rect(surface, color, rect, width=width, border_radius=radius)
 
 
+_shadow_cache = {}
+_ring_cache = {}
+
+
 def draw_shadow(surface, rect, radius=14, offset=(0, 6), spread=10, alpha=90):
-    """Soft drop shadow under a rounded rect."""
+    """Soft drop shadow under a rounded rect, cached by geometry and alpha."""
     rect = pygame.Rect(rect)
-    shadow = pygame.Surface(
-        (rect.width + spread * 2, rect.height + spread * 2), pygame.SRCALPHA)
-    base = pygame.Rect(spread, spread, rect.width, rect.height)
-    for i in range(spread, 0, -1):
-        a = int(alpha * (i / spread) ** 2 / spread)
-        grown = base.inflate(i * 2, i * 2)
-        pygame.draw.rect(shadow, (0, 0, 0, a), grown,
-                         border_radius=radius + i)
+    key = (rect.width, rect.height, radius, spread, alpha)
+    shadow = _shadow_cache.get(key)
+    if shadow is None:
+        shadow = pygame.Surface(
+            (rect.width + spread * 2, rect.height + spread * 2), pygame.SRCALPHA)
+        base = pygame.Rect(spread, spread, rect.width, rect.height)
+        for i in range(spread, 0, -1):
+            a = int(alpha * (i / spread) ** 2 / spread)
+            grown = base.inflate(i * 2, i * 2)
+            pygame.draw.rect(shadow, (0, 0, 0, a), grown,
+                             border_radius=radius + i)
+        _shadow_cache[key] = shadow
     surface.blit(shadow, (rect.x - spread + offset[0], rect.y - spread + offset[1]))
 
 
@@ -105,11 +113,15 @@ def tile_surface(size, grad_top, grad_bottom, radius=14) -> pygame.Surface:
 
 def glow_ring(diameter, color, alpha=130, thickness=4) -> pygame.Surface:
     """A soft circular glow ring used for highlighting valid targets."""
+    key = (diameter, color, alpha, thickness)
+    if key in _ring_cache:
+        return _ring_cache[key]
     surf = pygame.Surface((diameter, diameter), pygame.SRCALPHA)
     c = diameter // 2
     for i in range(6, 0, -1):
         a = int(alpha * (i / 6) ** 2 / 6) * thickness
         pygame.draw.circle(surf, (*color, min(255, a)), (c, c), c - i, max(1, i))
+    _ring_cache[key] = surf
     return surf
 
 

@@ -165,6 +165,7 @@ class GameScene(Scene):
         if not self.grid.apply_move(r, c, direction):
             sound.play("INVALID_MOVE")
             return False
+        self.board.record_move(r, c, direction)
         self.history.record(self.grid.state())
         self.moves += 1
         if self._cached_path and self._cached_path[0] == (r, c, direction):
