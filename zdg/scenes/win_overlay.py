@@ -14,10 +14,13 @@ def _fmt_time(seconds):
 
 
 class WinOverlay:
-    def __init__(self, moves, seconds, optimal, on_again, on_menu):
+    def __init__(self, moves, seconds, optimal, on_again, on_menu, auto_solved=False):
         self.moves = moves
         self.seconds = seconds
         self.optimal = optimal
+        self.auto_solved = auto_solved
+        self._on_again = on_again
+        self._on_menu = on_menu
         self.particles = ParticleSystem()
         self.particles.burst(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2, count=120)
         self._t = 0.0
@@ -32,11 +35,20 @@ class WinOverlay:
 
     @property
     def perfect(self):
-        return self.optimal is not None and self.moves == self.optimal
+        return (not self.auto_solved
+                and self.optimal is not None
+                and self.moves == self.optimal)
 
     def handle_event(self, event):
         for b in self.buttons:
             b.handle_event(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_n):
+                if self._on_again:
+                    self._on_again()
+            elif event.key == pygame.K_ESCAPE:
+                if self._on_menu:
+                    self._on_menu()
 
     def update(self, dt):
         self._t += dt
@@ -63,7 +75,12 @@ class WinOverlay:
             cx = card.centerx
             theme.text(surface, "Solved!", theme.get_font(48, True), GOOD,
                        center=(cx, card.y + 64))
-            label = "Perfect — optimal solution!" if self.perfect else "Nicely done."
+            if self.auto_solved:
+                label = "Solved by auto-solver."
+            elif self.perfect:
+                label = "Perfect — optimal solution!"
+            else:
+                label = "Nicely done."
             theme.text(surface, label, theme.get_font(20), MUTED,
                        center=(cx, card.y + 104))
             stats = [("Moves", str(self.moves)),

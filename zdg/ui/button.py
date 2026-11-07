@@ -1,7 +1,7 @@
 """A rounded button with hover/press animation and an optional drawn glyph icon."""
 import pygame
 from zdg import theme
-from zdg.settings import PANEL_LIGHT, ACCENT, TEXT, MUTED
+from zdg.settings import PANEL, PANEL_LIGHT, ACCENT, TEXT, MUTED
 
 
 def _lerp(a, b, t):
@@ -74,6 +74,26 @@ class Button:
         else:
             theme.text(surface, self.label, theme.get_font(self.font_size, True),
                        txt_color, center=(cx, cy + 1))
+
+    def draw_tooltip(self, surface):
+        if not self.tooltip or self._hover <= 0.55:
+            return
+        font = theme.get_font(14, True)
+        img = font.render(str(self.tooltip), True, TEXT)
+        tw, th = img.get_size()
+        pad_x, pad_y = 10, 6
+        box = pygame.Rect(0, 0, tw + pad_x * 2, th + pad_y * 2)
+        box.center = (self.rect.centerx, self.rect.top - box.height // 2 - 8)
+        sw = surface.get_width()
+        if box.left < 8:
+            box.x = 8
+        elif box.right > sw - 8:
+            box.x = sw - 8 - box.width
+        theme.draw_shadow(surface, box, radius=8, offset=(0, 3), spread=5, alpha=80)
+        theme.rounded_rect(surface, box, PANEL, radius=8)
+        pygame.draw.rect(surface, ACCENT, box, width=1, border_radius=8)
+        surface.blit(img, (box.x + pad_x, box.y + pad_y))
+
 
 
 def _draw_icon(surface, name, center, color):

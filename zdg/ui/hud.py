@@ -45,15 +45,43 @@ class MoveLog:
         self.open = False
         self._x = 1.0  # 1 = hidden (off right edge), 0 = fully shown
         self.width = 230
+        self.scroll_offset = 0  # lines scrolled up from bottom
 
     def add(self, text_line):
         self.entries.append(text_line)
+        self.scroll_offset = 0
+
+    def sync(self, entries):
+        self.entries = list(entries)
+        self.scroll_offset = 0
 
     def clear(self):
         self.entries.clear()
+        self.scroll_offset = 0
 
     def toggle(self):
         self.open = not self.open
+
+    def close_rect(self, panel_rect):
+        return pygame.Rect(panel_rect.right - 38, panel_rect.y + 12, 24, 24)
+
+    def handle_event(self, event, screen_rect, top, bottom):
+        if not self.open:
+            return False
+        rect = self.panel_rect(screen_rect, top, bottom)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.close_rect(rect).collidepoint(event.pos):
+                self.open = False
+                return True
+            if rect.collidepoint(event.pos):
+                return True
+        elif hasattr(pygame, "MOUSEWHEEL") and event.type == pygame.MOUSEWHEEL:
+            line_h = 24
+            max_lines = max(1, (rect.height - 70) // line_h)
+            max_scroll = max(0, len(self.entries) - max_lines)
+            self.scroll_offset = max(0, min(max_scroll, self.scroll_offset + event.y))
+            return True
+        return False
 
     def update(self, dt):
         target = 0.0 if self.open else 1.0
@@ -73,15 +101,23 @@ class MoveLog:
         theme.rounded_rect(surface, rect, PANEL, radius=16)
         theme.text(surface, "Move Log", theme.get_font(20, True), TEXT,
                    topleft=(rect.x + 18, rect.y + 16))
+        crect = self.close_rect(rect)
+        theme.rounded_rect(surface, crect, PANEL_LIGHT, radius=6)
+        theme.text(surface, "×", theme.get_font(18, True), MUTED,
+                   center=crect.center)
         pygame.draw.line(surface, PANEL_LIGHT, (rect.x + 18, rect.y + 46),
                          (rect.right - 18, rect.y + 46), 2)
         font = theme.get_font(16)
         line_h = 24
-        max_lines = (rect.height - 70) // line_h
-        shown = self.entries[-max_lines:]
-        start_index = len(self.entries) - len(shown)
+        max_lines = max(1, (rect.height - 70) // line_h)
+        max_scroll = max(0, len(self.entries) - max_lines)
+        offset = max(0, min(max_scroll, self.scroll_offset))
+        end_idx = len(self.entries) - offset
+        start_idx = max(0, end_idx - max_lines)
+        shown = self.entries[start_idx:end_idx]
         y = rect.y + 58
         for i, entry in enumerate(shown):
-            theme.text(surface, f"{start_index + i + 1}. {entry}", font, MUTED,
+            theme.text(surface, f"{start_idx + i + 1}. {entry}", font, MUTED,
                        topleft=(rect.x + 18, y))
             y += line_h
+

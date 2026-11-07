@@ -33,6 +33,7 @@ class GameScene(Scene):
         self.mask = self.grid.solution_mask()
         self.moves = 0
         self.elapsed = 0.0
+        self.used_auto_solve = False
         self.selected = None
         self.highlight = []
         self.dragging = False
@@ -63,15 +64,15 @@ class GameScene(Scene):
 
     def _build_buttons(self):
         specs = [
-            ("Undo", "undo", self.undo),
-            ("Redo", "redo", self.redo),
-            ("Reset", "reset", self.reset),
-            ("Hint", "hint", self.do_hint),
-            ("Solve", "solve", self.do_solve),
-            ("New", "new", self.new_game),
-            ("Sound", "sound", self.toggle_sound),
-            ("Log", "menu", self.toggle_log),
-            ("Menu", "menu", self.go_menu),
+            ("Undo", "undo", self.undo, "Undo last move (U)"),
+            ("Redo", "redo", self.redo, "Redo move (R)"),
+            ("Reset", "reset", self.reset, "Reset board to start"),
+            ("Hint", "hint", self.do_hint, "Highlight optimal next move (H)"),
+            ("Solve", "solve", self.do_solve, "Watch optimal solution"),
+            ("New", "new", self.new_game, "New puzzle (N)"),
+            ("Sound", "sound", self.toggle_sound, "Toggle sound effects (M)"),
+            ("Log", "menu", self.toggle_log, "Toggle move history log (L)"),
+            ("Menu", "menu", self.go_menu, "Return to main menu (Esc)"),
         ]
         m = BOARD_MARGIN
         n = len(specs)
@@ -81,8 +82,9 @@ class GameScene(Scene):
         y = WINDOW_HEIGHT - BOTTOM_BAR_H + 14
         self.buttons = {}
         x = m
-        for label, icon, cb in specs:
-            self.buttons[label] = Button((x, y, bw, 54), label, on_click=cb, icon=icon)
+        for label, icon, cb, tip in specs:
+            self.buttons[label] = Button((x, y, bw, 54), label, on_click=cb,
+                                         icon=icon, tooltip=tip)
             x += bw + gap
 
     # ----- actions --------------------------------------------------------
@@ -104,7 +106,7 @@ class GameScene(Scene):
             self.moves = self.history.move_count
             self._cached_path = None
             self._clear_selection()
-            self.move_log.add("Undo")
+            self.move_log.sync(self.history.labels)
 
     def redo(self):
         if self._busy():
@@ -115,7 +117,7 @@ class GameScene(Scene):
             self.moves = self.history.move_count
             self._cached_path = None
             self._clear_selection()
-            self.move_log.add("Redo")
+            self.move_log.sync(self.history.labels)
 
     def reset(self):
         if self._busy():
@@ -123,8 +125,9 @@ class GameScene(Scene):
         state = self.history.reset_to_initial()
         self.grid.set_state(state)
         self.moves = 0
+        self.used_auto_solve = False
         self._cached_path = list(self._initial_path) if self._initial_path is not None else None
-        self.move_log.clear()
+        self.move_log.sync(self.history.labels)
         self._clear_selection()
 
     def do_hint(self):
@@ -140,6 +143,7 @@ class GameScene(Scene):
             return
         path = self._ensure_path()
         if path:
+            self.used_auto_solve = True
             self.auto_moves = list(path)
             self._auto_timer = 0.0
             self._clear_selection()
@@ -165,8 +169,9 @@ class GameScene(Scene):
         if not self.grid.apply_move(r, c, direction):
             sound.play("INVALID_MOVE")
             return False
+        label = f"{direction.title()} ({r},{c})"
         self.board.record_move(r, c, direction)
-        self.history.record(self.grid.state())
+        self.history.record(self.grid.state(), label)
         self.moves += 1
         if self._cached_path and self._cached_path[0] == (r, c, direction):
             self._cached_path.pop(0)
@@ -174,15 +179,17 @@ class GameScene(Scene):
             self._cached_path = None
         sound.play("VALID_MOVE")
         if log:
-            self.move_log.add(f"{direction.title()} ({r},{c})")
+            self.move_log.sync(self.history.labels)
         self._check_win()
         return True
 
     def _check_win(self):
         if self.grid.is_win():
-            self.app.record_best(self.problem.label, self.moves)
+            if not self.used_auto_solve:
+                self.app.record_best(self.problem.label, self.moves)
             self.win = WinOverlay(self.moves, self.elapsed, self.optimal,
-                                  on_again=self.new_game, on_menu=self.go_menu)
+                                  on_again=self.new_game, on_menu=self.go_menu,
+                                  auto_solved=self.used_auto_solve)
             sound.play("WIN_GAME")
 
     def _clear_selection(self):
@@ -190,10 +197,26 @@ class GameScene(Scene):
         self.highlight = []
         self.dragging = False
 
+    def _select_cell(self, cell):
+        if cell and self.grid.array[cell[0]][cell[1]].value > 0:
+            self.selected = cell
+            self.highlight = self.grid.legal_targets(*cell)
+            self.hint_move = None
+            return True
+        self._clear_selection()
+        return False
+
     # ----- input ----------------------------------------------------------
     def handle_event(self, event):
         if self.win is not None:
             self.win.handle_event(event)
+            return
+        if self.move_log.handle_event(
+            event,
+            pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
+            self.board_rect.y,
+            self.board_rect.bottom,
+        ):
             return
         for b in self.buttons.values():
             b.handle_event(event)
@@ -211,26 +234,38 @@ class GameScene(Scene):
 
     def _on_press(self, pos):
         cell = self.board.cell_at(pos)
-        if cell and self.grid.array[cell[0]][cell[1]].value > 0:
-            self.selected = cell
+        if self.selected and cell and cell in self.highlight:
+            self._apply(*self.selected, self._direction(self.selected, cell))
+            self._clear_selection()
+            return
+        if self._select_cell(cell):
             self.dragging = True
             self.drag_pos = pos
-            self.highlight = self.grid.legal_targets(*cell)
-            self.hint_move = None
-        else:
-            self._clear_selection()
 
     def _on_release(self, pos):
         if not self.dragging:
             return
         self.dragging = False
         target = self.board.cell_at(pos)
-        if target and target in self.highlight and self.selected:
+        if target and target in self.highlight and self.selected and target != self.selected:
             self._apply(*self.selected, self._direction(self.selected, target))
             self._clear_selection()
         # otherwise keep selection + highlights so the player still sees options
 
     def _on_key(self, key):
+        key_dirs = {
+            getattr(pygame, "K_UP", None): "UP",
+            getattr(pygame, "K_w", None): "UP",
+            getattr(pygame, "K_DOWN", None): "DOWN",
+            getattr(pygame, "K_s", None): "DOWN",
+            getattr(pygame, "K_LEFT", None): "LEFT",
+            getattr(pygame, "K_a", None): "LEFT",
+            getattr(pygame, "K_RIGHT", None): "RIGHT",
+            getattr(pygame, "K_d", None): "RIGHT",
+        }
+        if key in key_dirs and key is not None:
+            self._handle_direction_key(key_dirs[key])
+            return
         if key == pygame.K_u:
             self.undo()
         elif key == pygame.K_r:
@@ -239,8 +274,31 @@ class GameScene(Scene):
             self.do_hint()
         elif key == pygame.K_n:
             self.new_game()
+        elif key == getattr(pygame, "K_m", None):
+            self.toggle_sound()
+        elif key == getattr(pygame, "K_l", None):
+            self.toggle_log()
         elif key == pygame.K_ESCAPE:
             self.go_menu()
+
+    def _handle_direction_key(self, direction):
+        if self.selected is None:
+            for r in range(self.grid.height):
+                for c in range(self.grid.width):
+                    if self.grid.array[r][c].value > 0:
+                        self._select_cell((r, c))
+                        return
+            return
+        r, c = self.selected
+        from zdg import rules
+        if rules.is_valid(self.grid.state(), r, c, direction):
+            dr, dc = rules.DELTA[direction]
+            dest = (r + dr, c + dc)
+            self._apply(r, c, direction)
+            if self.win is None and self.grid.array[dest[0]][dest[1]].value > 0:
+                self._select_cell(dest)
+            else:
+                self._clear_selection()
 
     @staticmethod
     def _direction(src, dst):
@@ -266,7 +324,6 @@ class GameScene(Scene):
         self.buttons["Reset"].enabled = self.history.can_undo() and not self._busy()
         self.buttons["Hint"].enabled = not self._busy()
         self.buttons["Solve"].enabled = not self._busy()
-
 
         if self.win is not None:
             self.win.update(dt)
@@ -308,6 +365,8 @@ class GameScene(Scene):
 
         for b in self.buttons.values():
             b.draw(surface)
+        for b in self.buttons.values():
+            b.draw_tooltip(surface)
 
         if self.auto_moves is not None:
             theme.text(surface, "Auto-solving…", theme.get_font(18, True), ACCENT,
