@@ -9,13 +9,23 @@ def _fmt_time(seconds):
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
-def draw_top_bar(surface, area, problem_label, moves, seconds, best, optimal):
+def draw_top_bar(surface, area, problem_label, moves, seconds, best, optimal,
+                 inspector_text=None, mode_label=None):
     theme.rounded_rect(surface, area, PANEL, radius=16)
 
-    theme.text(surface, "Build", theme.get_font(18, True), ACCENT,
+    header = mode_label or "Build"
+    theme.text(surface, header, theme.get_font(18, True), ACCENT,
                topleft=(area.x + 22, area.y + 16))
     theme.text(surface, problem_label, theme.get_font(34, True), TEXT,
                topleft=(area.x + 22, area.y + 36))
+
+    if inspector_text:
+        pill_w = min(380, max(220, len(inspector_text) * 9 + 28))
+        pill = pygame.Rect(0, 0, pill_w, 40)
+        pill.center = (area.centerx - 20, area.centery)
+        theme.rounded_rect(surface, pill, PANEL_LIGHT, radius=10)
+        theme.text(surface, inspector_text, theme.get_font(15, True), ACCENT,
+                   center=pill.center)
 
     chips = [("MOVES", str(moves), TEXT)]
     chips.append(("TIME", _fmt_time(seconds), TEXT))

@@ -81,15 +81,24 @@ identical — you're only ever rewriting one Fibonacci identity:
 
 ## ✨ Features
 
-- 🎨 **Polished, animated UI** — gradient tiles, soft shadows, pop animations,
-  glowing target slots, and a celebratory confetti win screen.
-- 💡 **Smart help** — an optimal **BFS solver** powers the **Hint** button and the
-  animated **Solve** playback, and shows you the **optimal move count** to beat.
-- ↩️ **Undo / Redo / Reset** — experiment freely; every move is reversible.
-- 🟢 **Valid-move highlighting** — click any tile to instantly see where it can go.
-- 📜 **Collapsible move log** and a live **moves / time / best** HUD.
-- 🎚 **Difficulty levels** that scale the size of the numbers (and the board).
-- 🔊 **Sound effects** with a mute toggle.
+- 🎨 **Polished, animated UI** — gradient tiles, soft shadows, directional split/merge
+  slide animations, glowing target slots, and a celebratory confetti win screen.
+- 💡 **Fast optimal A\* solver** — uses diagonalized Fibonacci recurrence coordinates
+  to power the **Hint** button, animated **Solve** playback, and **optimal move count**
+  even on the largest **Hard** puzzles.
+- 🖱 **Click-to-Move, Drag, & Keyboard Controls** — drag tiles, click a highlighted
+  destination cell, or navigate with Arrow keys / `WASD`.
+- 🔍 **Live Cell Value Inspector** — hover or select any cell to see its exact
+  Fibonacci product formula (`Fᵣ × F𝒸 = value`) in the top bar.
+- 📅 **Daily Challenge & Custom Puzzles** — play a deterministic daily puzzle or pick
+  any custom factor pair (`a × b`) directly from the title screen.
+- 💾 **Persistent Best Scores & Settings** — automatically saves best scores,
+  difficulty, and mute state (`localStorage` on web, JSON config on desktop), while
+  keeping auto-solved demonstrations separate from player records.
+- 🎓 **Interactive Tutorial** — includes a playable **Try It Yourself** mini-board
+  with live hint guidance.
+- ↩️ **Undo / Redo / Reset** — synchronized with a scrollable, collapsible **Move Log**.
+- 🔊 **Sound effects** with a persistent mute toggle.
 - 🌐 **Runs on desktop and in the browser** from a single codebase.
 
 ---
@@ -153,14 +162,16 @@ pygbag --build main.py        # outputs build/web/
 
 ## ⌨️ Controls
 
-| Input                   | Action                                                        |
-| ----------------------- | ------------------------------------------------------------- |
-| **Click + drag** a tile | move it (split / merge)                                       |
-| **Click** a tile        | highlight its legal moves                                     |
-| `U`                     | Undo · `R` Redo                                               |
-| `H`                     | Hint · `N` New puzzle                                         |
-| `Esc`                   | Back to menu                                                  |
-| Button bar              | Undo · Redo · Reset · Hint · Solve · New · Sound · Log · Menu |
+| Input                             | Action                                                        |
+| --------------------------------- | ------------------------------------------------------------- |
+| **Click + drag** a tile           | move it (split / merge)                                       |
+| **Click** a tile, then destination| click-to-move without dragging                                |
+| **Arrow keys / `WASD`**           | move selected tile (or select first tile)                     |
+| `U` / `R`                         | Undo / Redo                                                   |
+| `H` / `N`                         | Hint / New puzzle                                             |
+| `M` / `L`                         | Toggle Sound / Toggle Move Log                                |
+| `Esc`                             | Back to menu                                                  |
+| Button bar                        | Undo · Redo · Reset · Hint · Solve · New · Sound · Log · Menu |
 
 ---
 
@@ -188,17 +199,18 @@ Reference: _Zeckendorf representations and the MOVES game_
 ```
 main.py               # entry point (desktop + web)
 zdg/
-  rules.py            # the four moves as pure, testable functions (single source of truth)
+  rules.py            # the four moves + inverse moves as pure, testable functions
   grid.py · cell.py   # board model + win detection
-  problem.py · util.py# problem generation + Zeckendorf math
-  solver.py           # BFS shortest-path solver (hint / solve / optimal count)
-  history.py          # undo / redo
+  problem.py · util.py# random, daily, & custom problems + exact Zeckendorf math
+  solver.py           # bit-packed A* optimal solver (hint / solve / optimal count)
+  history.py          # undo / redo with move label tracking
+  persistence.py      # cross-platform save/load (localStorage on web, JSON on desktop)
   app.py              # async game loop + scene manager (web-safe)
   theme.py · settings.py · sound.py · particles.py
-  ui/                 # buttons, board renderer, HUD + move log
-  scenes/             # menu · game · tutorial · win overlay
+  ui/                 # buttons with tooltips, board renderer, HUD + scrollable move log
+  scenes/             # menu · game · interactive tutorial · win overlay
 tools/screenshot.py   # renders the README screenshots headlessly
-tests/                # unittest: rules, solver, Zeckendorf utils
+tests/                # comprehensive unittest suite (rules, solver, util, UI, gameplay, tutorial, persistence)
 ```
 
 ---

@@ -48,6 +48,12 @@ def play(name):
         pass
 
 
+def set_muted(flag: bool):
+    global muted
+    muted = bool(flag)
+    return muted
+
+
 def toggle_mute():
     global muted
     muted = not muted

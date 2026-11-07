@@ -54,6 +54,33 @@ class BoardView:
     def cell_center(self, r, c):
         return self._rects[(r, c)].center
 
+    def cell_math_info(self, row: int, col: int) -> dict:
+        """Return the Fibonacci axis weights and value breakdown for cell ``(row, col)``."""
+        col_labels = [int(v) for v in get_first_n_zeckendorf_terms(self.grid.width)[::-1]]
+        row_labels = [int(v) for v in get_first_n_zeckendorf_terms(self.grid.height)[::-1]]
+        rf = row_labels[row]
+        cf = col_labels[col]
+        unit = rf * cf
+        cell = self.grid.array[row][col]
+        count = cell.value
+        total = count * unit
+        target_tag = " · Target" if cell.solution else ""
+        if count > 0:
+            summary = f"({row},{col}): {rf} × {cf} = {unit}  (×{count} = {total}){target_tag}"
+        else:
+            summary = f"({row},{col}): {rf} × {cf} = {unit}  (empty){target_tag}"
+        return {
+            "row": row,
+            "col": col,
+            "row_fib": rf,
+            "col_fib": cf,
+            "unit_value": unit,
+            "count": count,
+            "total_value": total,
+            "is_target": bool(cell.solution),
+            "summary": summary,
+        }
+
     # ----- animation ------------------------------------------------------
     def record_move(self, row: int, col: int, direction: str):
         """Spawn directional split/merge slide animations for a move."""

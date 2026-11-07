@@ -19,14 +19,14 @@ HINT_SHOW = 3.0       # how long a hint stays lit
 
 
 class GameScene(Scene):
-    def __init__(self, app):
+    def __init__(self, app, problem=None):
         super().__init__(app)
-        self.new_problem()
+        self.new_problem(problem=problem)
         self._build_buttons()
 
     # ----- setup ----------------------------------------------------------
-    def new_problem(self):
-        self.problem = Problem(difficulty=self.app.difficulty)
+    def new_problem(self, problem=None):
+        self.problem = problem if problem is not None else Problem(difficulty=self.app.difficulty)
         self.grid = Grid(self.problem.grid_width, self.problem.grid_height, self.problem)
         self.board = BoardView(self.grid)
         self.history = History(self.grid.state())
@@ -35,6 +35,7 @@ class GameScene(Scene):
         self.elapsed = 0.0
         self.used_auto_solve = False
         self.selected = None
+        self.hovered_cell = None
         self.highlight = []
         self.dragging = False
         self.drag_pos = (0, 0)
@@ -63,6 +64,7 @@ class GameScene(Scene):
         self.board.layout(self.board_rect)
 
     def _build_buttons(self):
+        snd_icon = "mute" if sound.muted else "sound"
         specs = [
             ("Undo", "undo", self.undo, "Undo last move (U)"),
             ("Redo", "redo", self.redo, "Redo move (R)"),
@@ -70,7 +72,7 @@ class GameScene(Scene):
             ("Hint", "hint", self.do_hint, "Highlight optimal next move (H)"),
             ("Solve", "solve", self.do_solve, "Watch optimal solution"),
             ("New", "new", self.new_game, "New puzzle (N)"),
-            ("Sound", "sound", self.toggle_sound, "Toggle sound effects (M)"),
+            ("Sound", snd_icon, self.toggle_sound, "Toggle sound effects (M)"),
             ("Log", "menu", self.toggle_log, "Toggle move history log (L)"),
             ("Menu", "menu", self.go_menu, "Return to main menu (Esc)"),
         ]
@@ -156,6 +158,8 @@ class GameScene(Scene):
     def toggle_sound(self):
         muted = sound.toggle_mute()
         self.buttons["Sound"].icon = "mute" if muted else "sound"
+        if hasattr(self.app, "save_state"):
+            self.app.save_state()
 
     def toggle_log(self):
         self.move_log.toggle()
@@ -163,6 +167,12 @@ class GameScene(Scene):
     def go_menu(self):
         from zdg.scenes.menu_scene import MenuScene
         self.app.go_to(MenuScene(self.app))
+
+    def inspected_cell_info(self):
+        cell = self.selected or self.hovered_cell
+        if cell is None:
+            return None
+        return self.board.cell_math_info(*cell)
 
     # ----- move application ----------------------------------------------
     def _apply(self, r, c, direction, log=True):
@@ -225,8 +235,10 @@ class GameScene(Scene):
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self._on_press(event.pos)
-        elif event.type == pygame.MOUSEMOTION and self.dragging:
-            self.drag_pos = event.pos
+        elif event.type == pygame.MOUSEMOTION:
+            self.hovered_cell = self.board.cell_at(event.pos)
+            if self.dragging:
+                self.drag_pos = event.pos
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self._on_release(event.pos)
         elif event.type == pygame.KEYDOWN:
@@ -234,6 +246,7 @@ class GameScene(Scene):
 
     def _on_press(self, pos):
         cell = self.board.cell_at(pos)
+        self.hovered_cell = cell
         if self.selected and cell and cell in self.highlight:
             self._apply(*self.selected, self._direction(self.selected, cell))
             self._clear_selection()
@@ -348,8 +361,18 @@ class GameScene(Scene):
     # ----- draw -----------------------------------------------------------
     def draw(self, surface):
         best = self.app.best_scores.get(self.problem.label)
-        hud.draw_top_bar(surface, self.top_rect, self.problem.label,
-                         self.moves, self.elapsed, best, self.optimal)
+        info = self.inspected_cell_info()
+        hud.draw_top_bar(
+            surface,
+            self.top_rect,
+            self.problem.label,
+            self.moves,
+            self.elapsed,
+            best,
+            self.optimal,
+            inspector_text=info["summary"] if info else None,
+            mode_label=getattr(self.problem, "mode_label", None),
+        )
 
         # board panel
         theme.rounded_rect(surface, self.board_rect, (28, 33, 54), radius=16)

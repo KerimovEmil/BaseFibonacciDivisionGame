@@ -5,7 +5,7 @@ pygbag/WASM (web) and on the desktop.
 """
 import asyncio
 import pygame
-from zdg import theme, sound
+from zdg import theme, sound, persistence
 from zdg.settings import (
     TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, FPS, GAME_ICON_PATH,
     BG_TOP, BG_BOTTOM, BG_IMG, BG_IMG_ALPHA, DEFAULT_DIFFICULTY,
@@ -13,7 +13,7 @@ from zdg.settings import (
 
 
 class App:
-    def __init__(self):
+    def __init__(self, save_path=None):
         pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -24,12 +24,16 @@ class App:
             pass
         self.clock = pygame.time.Clock()
         self.running = True
-        self.difficulty = DEFAULT_DIFFICULTY
-        self.best_scores = {}        # problem label -> fewest moves this session
+        self._save_path = save_path
+        saved = persistence.load_save(self._save_path)
+        self.difficulty = saved.get("difficulty", DEFAULT_DIFFICULTY)
+        self.best_scores = dict(saved.get("best_scores", {}))
+        self.custom_factors = (3, 5)
         self._scene = None
         self._next_scene = None
         self._background = self._build_background()
         sound.init()
+        sound.set_muted(saved.get("muted", False))
 
     # ----- background -----------------------------------------------------
     def _build_background(self):
@@ -53,11 +57,26 @@ class App:
             self._next_scene = None
             self._scene.on_enter()
 
-    # ----- best score helper ---------------------------------------------
+    # ----- persistence & best score helpers -------------------------------
+    def save_state(self):
+        persistence.save_data(
+            {
+                "best_scores": self.best_scores,
+                "difficulty": self.difficulty,
+                "muted": sound.muted,
+            },
+            path=self._save_path,
+        )
+
+    def set_difficulty(self, name):
+        self.difficulty = name
+        self.save_state()
+
     def record_best(self, label, moves):
         cur = self.best_scores.get(label)
         if cur is None or moves < cur:
             self.best_scores[label] = moves
+            self.save_state()
 
     # ----- main loop ------------------------------------------------------
     async def run(self):
