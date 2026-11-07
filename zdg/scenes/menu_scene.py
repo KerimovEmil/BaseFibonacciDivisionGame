@@ -1,5 +1,6 @@
 """Title screen: difficulty selection, play, tutorial, quit."""
 import math
+import sys
 import pygame
 from zdg import theme
 from zdg.scenes.scene import Scene
@@ -28,11 +29,19 @@ class MenuScene(Scene):
         self.play_btn = Button((cx - 150, 446, 300, 60), "Play",
                                on_click=self._play, kind="primary",
                                icon="solve", font_size=26)
-        self.tutorial_btn = Button((cx - 150, 520, 145, 50), "How to Play",
-                                   on_click=self._tutorial, font_size=18)
-        self.quit_btn = Button((cx + 5, 520, 145, 50), "Quit",
-                               on_click=self._quit, kind="ghost", font_size=18)
-        self.buttons = self.diff_buttons + [self.play_btn, self.tutorial_btn, self.quit_btn]
+        if sys.platform == "emscripten":
+            self.tutorial_btn = Button((cx - 150, 520, 300, 50), "How to Play",
+                                       on_click=self._tutorial, font_size=18)
+            self.quit_btn = None
+            self.buttons = self.diff_buttons + [self.play_btn, self.tutorial_btn]
+        else:
+            self.tutorial_btn = Button((cx - 150, 520, 145, 50), "How to Play",
+                                       on_click=self._tutorial, font_size=18)
+            self.quit_btn = Button((cx + 5, 520, 145, 50), "Quit",
+                                   on_click=self._quit, kind="ghost", font_size=18)
+            self.buttons = self.diff_buttons + [
+                self.play_btn, self.tutorial_btn, self.quit_btn,
+            ]
 
     def _set_diff(self, name):
         self.app.difficulty = name

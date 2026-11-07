@@ -11,7 +11,8 @@
 - Solver-powered **Hint** and animated **Solve** (optimal path), plus an
   **optimal move count** in the HUD.
 - **Undo / Redo / Reset** via state-snapshot history.
-- Web build: runs in the browser via pygbag (async loop, no blocking mainloops).
+- Web build: runs in the browser via pygbag (async loop, no blocking mainloops)
+  and deploys automatically to GitHub Pages via `.github/workflows/pages.yml`.
 - Pure `rules.py` shared by gameplay and solver; unit tests for rules + solver.
 
 ## 🔧 Known limitation / next up
@@ -27,5 +28,4 @@
 - **Different rule sets / sequences:** `rules.py` is already isolated as a single
   source of truth — generalize it to inject alternate bases/identities.
 - Per-puzzle persistent best scores / daily challenge.
-- Deploy the web build to a live site (GitHub Pages / Netlify) from `build/web`.
 - Optional move-by-move animation of split/merge (currently a pop on change).
