@@ -128,8 +128,14 @@ python main.py
 
 ## 🌐 Play in the browser (web build)
 
-The game compiles to WebAssembly with [pygbag](https://github.com/pygame-web/pygbag),
-so it runs in any modern browser with no install.
+Play right now in your browser — no install needed:
+👉 **[https://kerimovemil.github.io/BaseFibonacciDivisionGame/](https://kerimovemil.github.io/BaseFibonacciDivisionGame/)**
+
+The game compiles to WebAssembly with [pygbag](https://github.com/pygame-web/pygbag)
+and is automatically built and deployed to GitHub Pages on every push to `main`
+via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+
+To run the web build locally:
 
 ```bash
 pip install pygbag
@@ -137,13 +143,11 @@ pygbag main.py
 ```
 
 Then open the printed local URL (usually <http://localhost:8000>) to play.
-To produce a static bundle you can host anywhere (GitHub Pages, Netlify, …):
+To produce a static bundle locally:
 
 ```bash
 pygbag --build main.py        # outputs build/web/
 ```
-
-Upload the contents of `build/web/` to any static host and share the link.
 
 ---
 

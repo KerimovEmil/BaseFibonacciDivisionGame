@@ -1,0 +1,84 @@
+name: Deploy Web Build to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies and pygbag
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pygbag
+
+      - name: Run unit tests
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python -m unittest discover -s tests
+
+      - name: Build WebAssembly bundle with pygbag
+        run: |
+          STAGE_DIR="/tmp/web-stage/BaseFibonacciDivisionGame"
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/assets" "$STAGE_DIR/sounds"
+          cp main.py "$STAGE_DIR/"
+          cp -r zdg "$STAGE_DIR/"
+          find "$STAGE_DIR/zdg" -name "__pycache__" -type d -exec rm -rf {} +
+          cp assets/fib_bg1.png "$STAGE_DIR/assets/"
+          cp sounds/*.ogg "$STAGE_DIR/sounds/"
+
+          cd "$STAGE_DIR"
+          python -m pygbag \
+            --build \
+            --ume_block 0 \
+            --title "Base Fibonacci Division" \
+            --icon assets/fib_bg1.png \
+            --width 1000 \
+            --height 720 \
+            main.py
+
+          sed -i 's/#7f7f7f/#161a2c/g' build/web/index.html
+          touch build/web/.nojekyll
+          ls -lh build/web
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/web-stage/BaseFibonacciDivisionGame/build/web
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
