@@ -37,6 +37,34 @@ class TestSolver(unittest.TestCase):
         path = solver.solve(g.state(), mask)
         self.assertEqual(solver.hint(g.state(), mask), path[0])
 
+    def test_solver_scales_to_hard_puzzles(self):
+        # Exhaustively test all Hard factor pairs (6 <= a <= b <= 13)
+        for a in range(6, 14):
+            for b in range(a, 14):
+                p = Problem(difficulty="Hard", lower=a, upper=a)
+                # Force exact pair (a, b)
+                from zdg.util import convert_decimal_to_base_fib
+                p.divisor, p.quotient, p.dividend = a, b, a * b
+                p.fib_dividend = convert_decimal_to_base_fib(p.dividend)
+                p.fib_divisor = convert_decimal_to_base_fib(p.divisor)
+                p.fib_quotient = convert_decimal_to_base_fib(p.quotient)
+                g = Grid(p.grid_width, p.grid_height, p)
+                mask = g.solution_mask()
+                path = solver.solve(g.state(), mask)
+                self.assertIsNotNone(path, f"no path found for Hard puzzle {p.label}")
+                for (r, c, d) in path:
+                    self.assertTrue(g.apply_move(r, c, d))
+                self.assertTrue(g.is_win(), f"path did not win Hard puzzle {p.label}")
+
+    def test_unsolvable_state_returns_none(self):
+        p = Problem(difficulty="Easy")
+        g = Grid(p.grid_width, p.grid_height, p)
+        bad_state = g.state()
+        bad_state[0][0] += 1  # corrupt invariant value
+        self.assertIsNone(solver.solve(bad_state, g.solution_mask()))
+
 
 if __name__ == "__main__":
     unittest.main()
+
+

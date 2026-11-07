@@ -43,7 +43,10 @@ class GameScene(Scene):
         self._auto_timer = 0.0
         self.move_log = hud.MoveLog()
         self.win = None
-        self.optimal = solver.optimal_length(self.grid.state(), self.mask)
+        initial_path = solver.solve(self.grid.state(), self.mask)
+        self._initial_path = list(initial_path) if initial_path is not None else None
+        self._cached_path = list(initial_path) if initial_path is not None else None
+        self.optimal = len(initial_path) if initial_path is not None else None
         self._layout()
 
     def on_enter(self):
@@ -86,6 +89,12 @@ class GameScene(Scene):
     def _busy(self):
         return self.auto_moves is not None or self.win is not None
 
+    def _ensure_path(self):
+        if self._cached_path is None:
+            path = solver.solve(self.grid.state(), self.mask)
+            self._cached_path = list(path) if path is not None else None
+        return self._cached_path
+
     def undo(self):
         if self._busy():
             return
@@ -93,6 +102,7 @@ class GameScene(Scene):
         if state is not None:
             self.grid.set_state(state)
             self.moves = self.history.move_count
+            self._cached_path = None
             self._clear_selection()
             self.move_log.add("Undo")
 
@@ -103,6 +113,7 @@ class GameScene(Scene):
         if state is not None:
             self.grid.set_state(state)
             self.moves = self.history.move_count
+            self._cached_path = None
             self._clear_selection()
             self.move_log.add("Redo")
 
@@ -112,21 +123,22 @@ class GameScene(Scene):
         state = self.history.reset_to_initial()
         self.grid.set_state(state)
         self.moves = 0
+        self._cached_path = list(self._initial_path) if self._initial_path is not None else None
         self.move_log.clear()
         self._clear_selection()
 
     def do_hint(self):
         if self._busy():
             return
-        move = solver.hint(self.grid.state(), self.mask)
-        if move:
-            self.hint_move = move
+        path = self._ensure_path()
+        if path:
+            self.hint_move = path[0]
             self._hint_timer = HINT_SHOW
 
     def do_solve(self):
         if self._busy():
             return
-        path = solver.solve(self.grid.state(), self.mask)
+        path = self._ensure_path()
         if path:
             self.auto_moves = list(path)
             self._auto_timer = 0.0
@@ -155,6 +167,10 @@ class GameScene(Scene):
             return False
         self.history.record(self.grid.state())
         self.moves += 1
+        if self._cached_path and self._cached_path[0] == (r, c, direction):
+            self._cached_path.pop(0)
+        else:
+            self._cached_path = None
         sound.play("VALID_MOVE")
         if log:
             self.move_log.add(f"{direction.title()} ({r},{c})")
@@ -246,6 +262,10 @@ class GameScene(Scene):
 
         self.buttons["Undo"].enabled = self.history.can_undo() and not self._busy()
         self.buttons["Redo"].enabled = self.history.can_redo() and not self._busy()
+        self.buttons["Reset"].enabled = self.history.can_undo() and not self._busy()
+        self.buttons["Hint"].enabled = not self._busy()
+        self.buttons["Solve"].enabled = not self._busy()
+
 
         if self.win is not None:
             self.win.update(dt)

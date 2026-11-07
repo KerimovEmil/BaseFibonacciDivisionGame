@@ -128,3 +128,10 @@ def legal_moves(state) -> List[Tuple[int, int, str]]:
 def inverse(direction: str) -> str:
     """Direction that undoes ``direction`` (split <-> merge)."""
     return {"LEFT": "RIGHT", "RIGHT": "LEFT", "UP": "DOWN", "DOWN": "UP"}[direction]
+
+
+def inverse_move(row: int, col: int, direction: str) -> Tuple[int, int, str]:
+    """Return the exact move ``(r, c, d)`` that reverses ``(row, col, direction)``."""
+    dr, dc = DELTA[direction]
+    return (row + dr, col + dc, inverse(direction))
+

@@ -48,6 +48,25 @@ class TestRules(unittest.TestCase):
         Move(g, col=c, row=r, direction=d).make_move()
         self.assertEqual(g.state(), expected)
 
+    def test_inverse_move_reverses_every_legal_move(self):
+        random.seed(7)
+        for _ in range(25):
+            p = Problem(difficulty="Hard")
+            g = Grid(p.grid_width, p.grid_height, p)
+            state = g.state()
+            for _step in range(8):
+                legal = rules.legal_moves(state)
+                for (r, c, d) in legal:
+                    after = rules.apply(state, r, c, d)
+                    ir, ic, idir = rules.inverse_move(r, c, d)
+                    self.assertTrue(rules.is_valid(after, ir, ic, idir))
+                    restored = rules.apply(after, ir, ic, idir)
+                    self.assertEqual(restored, state)
+                if legal:
+                    r, c, d = random.choice(legal)
+                    state = rules.apply(state, r, c, d)
+
 
 if __name__ == "__main__":
     unittest.main()
+

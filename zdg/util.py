@@ -1,49 +1,69 @@
-from typing import Union, List
-from math import log
+from typing import List
 
 
-def fibonacci_n_term(n: int) -> Union[int, NotImplementedError]:
-    """Returns the nth fibonacci number"""
+def fibonacci_n_term(n: int) -> int:
+    """Returns the nth Fibonacci number (F_0 = 0, F_1 = 1, F_2 = 1, F_3 = 2, ...)."""
     if n < 0:
-        return NotImplementedError('negative n is not implemented')
-    sq_5 = 5 ** 0.5
-    phi_pos = (1 + sq_5) / 2
-    return round(phi_pos ** n / sq_5)
+        raise ValueError("negative n is not supported")
+    if n == 0:
+        return 0
+    a, b = 0, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b
 
 
-def zeckendorf_n_term(n: int) -> Union[int, NotImplementedError]:
+def zeckendorf_n_term(n: int) -> int:
+    """Returns the nth Zeckendorf basis term (Z_1 = F_2 = 1, Z_2 = F_3 = 2, ...)."""
+    if n < 1:
+        raise ValueError("Zeckendorf term index must be >= 1")
     return fibonacci_n_term(n + 1)
 
 
 def get_first_n_zeckendorf_terms(n: int) -> List[int]:
-    return [zeckendorf_n_term(i) for i in range(1, n + 1)]
+    if n <= 0:
+        return []
+    terms = []
+    a, b = 1, 2
+    for _ in range(n):
+        terms.append(a)
+        a, b = b, a + b
+    return terms
 
 
 def convert_decimal_to_base_fib(n: int) -> str:
     """
-    Convert from decimal notation to zeckendorf notation.
+    Convert from decimal notation to Zeckendorf (base-Fibonacci) notation.
     e.g.
        10 = 8 + 2 = 10010
        4 = 3 + 1 = 101
     """
-    # z_n = round(((1 + 5**0.5) / 2))**(n+1) / 5**0.5)
-    # N = round(((1 + 5**0.5) / 2))**(q+1) / 5**0.5)
-    # N * 5**0.5 = ((1 + 5**0.5) / 2))**(q+1)
-    # ln(N * 5**0.5) = (q+1) * ln((1 + 5**0.5) / 2))
-    # ln(N * 5**0.5) / ln((1 + 5**0.5) / 2)) = (q+1)
-    # q + 1 = ln(N * 5**0.5) / ln((1 + 5**0.5) / 2))
-    # q < ln(N * 5**0.5) / ln((1 + 5**0.5) / 2))
+    if n < 0:
+        raise ValueError("negative n is not supported")
+    if n == 0:
+        return "0"
 
-    sq_5 = 5 ** 0.5
-    max_z = int(log(n * sq_5) / log((1 + sq_5) / 2)) + 1
+    ls_z = []
+    a, b = 1, 2
+    while a <= n:
+        ls_z.append(a)
+        a, b = b, a + b
 
-    ls_z = get_first_n_zeckendorf_terms(max_z)
-    ans_str = ''
-    for z in ls_z[::-1]:
-        if z <= n:
-            ans_str += '1'
-            n -= z
-        else:
-            if len(ans_str) != 0:
-                ans_str += '0'
-    return ans_str
+    ans_chars = []
+    rem = n
+    for z in reversed(ls_z):
+        if z <= rem:
+            ans_chars.append("1")
+            rem -= z
+        elif ans_chars:
+            ans_chars.append("0")
+    return "".join(ans_chars)
+
+
+def convert_base_fib_to_decimal(fib_str: str) -> int:
+    """Convert a Zeckendorf bitstring back to its decimal integer value."""
+    if not fib_str or any(ch not in ("0", "1") for ch in fib_str):
+        raise ValueError(f"invalid base-Fibonacci string: {fib_str!r}")
+    terms = get_first_n_zeckendorf_terms(len(fib_str))[::-1]
+    return sum(t for ch, t in zip(fib_str, terms) if ch == "1")
+
