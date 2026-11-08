@@ -20,25 +20,28 @@ CUSTOM_LOADER_SNIPPET = """
     overflow: hidden;
   }
   canvas.emscripten {
-    border: 0 !important;
-    border-radius: 16px;
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(126, 158, 255, 0.16);
+    border: 0px none !important;
+    padding: 0 !important;
+    background-color: transparent;
   }
-  /* Hide pygbag's default raw transfer UI while keeping its DOM nodes alive for scripts */
-  #transfer, #status, #box, #dlg {
+  /* Hide pygbag's default raw transfer UI and green #infobox while keeping DOM nodes alive for scripts */
+  #transfer, #status, #box, #dlg, #infobox {
+    display: none !important;
     opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none !important;
+    z-index: -1 !important;
   }
   #fib-loader {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 1000000;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: radial-gradient(circle at 50% 30%, #242b4a 0%, #161a2c 64%, #0d101d 100%);
-    transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
   #fib-loader.fib-hidden {
     opacity: 0;
@@ -117,11 +120,11 @@ CUSTOM_LOADER_SNIPPET = """
   }
   .fib-bar-fill {
     height: 100%;
-    width: 12%;
+    width: 16%;
     border-radius: 999px;
     background: linear-gradient(90deg, #60a5fa 0%, #7e9eff 50%, #34d399 100%);
     box-shadow: 0 0 14px rgba(126, 158, 255, 0.65);
-    transition: width 0.2s ease-out;
+    transition: width 0.25s ease-out;
   }
   .fib-status {
     font-size: 13px;
@@ -147,7 +150,7 @@ CUSTOM_LOADER_SNIPPET = """
     <div class="fib-bar-track">
       <div id="fib-bar-fill" class="fib-bar-fill"></div>
     </div>
-    <div id="fib-status-text" class="fib-status">Loading Python &amp; WebAssembly runtime…</div>
+    <div id="fib-status-text" class="fib-status">Initializing Python &amp; WebAssembly runtime…</div>
   </div>
 </div>
 
@@ -157,6 +160,16 @@ CUSTOM_LOADER_SNIPPET = """
   var fill = document.getElementById("fib-bar-fill");
   var statusText = document.getElementById("fib-status-text");
   var dismissed = false;
+  var startTime = performance.now();
+
+  /* Prevent pygbag's show_infobox() from ever making the green #infobox visible */
+  window.show_infobox = function() {
+    var ib = document.getElementById("infobox");
+    if (ib) {
+      ib.style.background = "transparent";
+      ib.style.color = "transparent";
+    }
+  };
 
   window.dismissFibLoader = function() {
     if (dismissed || !loader) return;
@@ -166,34 +179,35 @@ CUSTOM_LOADER_SNIPPET = """
     loader.classList.add("fib-hidden");
     setTimeout(function() {
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-    }, 650);
+    }, 550);
   };
 
   function syncProgress() {
     if (dismissed) return;
     var pg = document.getElementById("progress");
-    var st = document.getElementById("status");
-    var tr = document.getElementById("transfer");
-    if (pg && pg.max && pg.value >= 0) {
-      var pct = Math.max(10, Math.min(100, Math.round((pg.value / pg.max) * 100)));
-      if (fill) fill.style.width = pct + "%";
+    var ib = document.getElementById("infobox");
+    var elapsedSec = (performance.now() - startTime) / 1000.0;
+    var fakePct = Math.min(88, Math.round(18 + 70 * (1 - Math.exp(-elapsedSec / 2.2))));
+    if (pg && pg.max && pg.value > 0) {
+      var realPct = Math.round((pg.value / pg.max) * 100);
+      fakePct = Math.max(fakePct, Math.min(95, realPct));
     }
-    if (st && st.textContent && st.textContent.trim()) {
-      var txt = st.textContent.trim();
-      if (statusText) statusText.textContent = txt;
-      if (/hide|done|ready|running/i.test(txt)) {
-        setTimeout(window.dismissFibLoader, 350);
+    if (fill) fill.style.width = fakePct + "%";
+
+    if (ib) {
+      /* Pygbag sets infobox.style.display = "none" right when main.py finishes launching */
+      if (ib.style.display === "none") {
+        window.dismissFibLoader();
         return;
       }
-    }
-    if (tr && (tr.style.display === "none" || tr.hidden)) {
-      setTimeout(window.dismissFibLoader, 250);
-      return;
+      var ibTxt = (ib.innerText || ib.textContent || "").trim();
+      if (ibTxt && !/loading,?\s*please wait/i.test(ibTxt)) {
+        if (statusText) statusText.textContent = ibTxt;
+      }
     }
     requestAnimationFrame(syncProgress);
   }
   requestAnimationFrame(syncProgress);
-  /* Fallback safety timeout so the overlay never blocks play if DOM IDs change */
   setTimeout(window.dismissFibLoader, 12000);
 })();
 </script>
@@ -202,7 +216,12 @@ CUSTOM_LOADER_SNIPPET = """
 
 def patch_index_html(html: str) -> str:
     """Return patched HTML with dark theme colours and custom Fibonacci loader."""
-    patched = html.replace("#7f7f7f", "#161a2c").replace("#808080", "#161a2c")
+    patched = (
+        html.replace("#7f7f7f", "#161a2c")
+        .replace("#808080", "#161a2c")
+        .replace("background-color:powderblue;", "background-color:#161a2c;")
+        .replace("background: green;", "background: transparent; display: none;")
+    )
     if 'id="fib-loader"' in patched:
         return patched
     if "</body>" in patched:

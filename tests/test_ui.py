@@ -63,9 +63,17 @@ class TestUI(unittest.TestCase):
         from zdg.app import App
         from zdg.scenes.menu_scene import MenuScene
 
-        raw_html = "<html><body style='background:#7f7f7f'><div id='transfer'></div></body></html>"
+        raw_html = (
+            "<html><head><style>#infobox { background: green; color: blue; z-index: 999999; }"
+            " body { background-color:powderblue; }</style></head>"
+            "<body style='background:#7f7f7f'><div id='transfer'></div>"
+            "<div id='infobox'>Loading, please wait ...</div></body></html>"
+        )
         patched = patch_index_html(raw_html)
         self.assertNotIn("#7f7f7f", patched)
+        self.assertNotIn("background: green;", patched)
+        self.assertNotIn("background-color:powderblue;", patched)
+        self.assertIn("#transfer, #status, #box, #dlg, #infobox", patched)
         self.assertIn('id="fib-loader"', patched)
         self.assertIn("window.dismissFibLoader", patched)
         # Idempotent when run a second time

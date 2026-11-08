@@ -108,6 +108,8 @@ class App:
             return
         try:
             import platform
+            if hasattr(platform.window, "infobox"):
+                platform.window.infobox.style.display = "none"
             if hasattr(platform.window, "dismissFibLoader"):
                 platform.window.dismissFibLoader()
         except Exception:
