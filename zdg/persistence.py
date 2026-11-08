@@ -46,7 +46,9 @@ def _normalize(raw) -> dict:
                 clean_scores[k] = v
         data["best_scores"] = clean_scores
     diff = raw.get("difficulty")
-    if isinstance(diff, str) and diff in ("Easy", "Medium", "Hard", "Extreme"):
+    if diff == "Extreme":
+        diff = "Hard"
+    if isinstance(diff, str) and diff in ("Easy", "Medium", "Hard"):
         data["difficulty"] = diff
     muted = raw.get("muted")
     if isinstance(muted, bool):

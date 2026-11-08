@@ -1,8 +1,9 @@
-"""Generates a random, seeded, or custom division problem and its Zeckendorf representations."""
 from datetime import date
 from random import Random, randint
 from zdg.util import convert_decimal_to_base_fib
-from zdg.settings import DIFFICULTIES, DEFAULT_DIFFICULTY, EXTREME_DEFAULT_ROWS
+from zdg.settings import (
+    DIFFICULTIES, DEFAULT_DIFFICULTY, HARD_DEFAULT_ROWS, EXTREME_DEFAULT_ROWS
+)
 
 
 class Problem:
@@ -30,10 +31,14 @@ class Problem:
     ):
         self.difficulty = difficulty
         self.seed = seed
-        self.extreme = (difficulty == "Extreme") if extreme is None else bool(extreme)
+        self.extreme = (
+            (difficulty in ("Hard", "Extreme"))
+            if extreme is None
+            else bool(extreme)
+        )
         self.mode_label = mode_label
         if min_rows is None:
-            min_rows = EXTREME_DEFAULT_ROWS if self.extreme else 0
+            min_rows = HARD_DEFAULT_ROWS if self.extreme else 0
         self.min_rows = int(min_rows)
         lo, hi = DIFFICULTIES.get(difficulty, DIFFICULTIES[DEFAULT_DIFFICULTY])
         if lower is not None:
@@ -91,14 +96,16 @@ class Problem:
         )
 
     @classmethod
-    def custom(cls, a: int, b: int, extreme: bool = False, min_rows=None):
+    def custom(cls, a: int, b: int, extreme: bool = None, hard: bool = None, min_rows=None):
         """Return a custom puzzle for explicit factors ``a`` and ``b``."""
+        is_hard = hard if extreme is None else extreme
+        is_hard = bool(is_hard) if is_hard is not None else False
         return cls(
-            difficulty="Extreme" if extreme else "Custom",
+            difficulty="Hard" if is_hard else "Custom",
             divisor=a,
             quotient=b,
-            mode_label="Custom · Extreme" if extreme else "Custom",
-            extreme=extreme,
+            mode_label="Custom · Hard" if is_hard else "Custom",
+            extreme=is_hard,
             min_rows=min_rows,
         )
 

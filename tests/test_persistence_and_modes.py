@@ -109,18 +109,18 @@ class PersistenceAndModesTests(unittest.TestCase):
             # Render scene with active inspector
             scene.draw(surface)
 
-    def test_extreme_mode_win_conditions_and_ui(self):
+    def test_hard_mode_win_conditions_and_ui(self):
         from zdg.grid import Grid, is_extreme_win_state
         from zdg.settings import TILE_LIVE, TILE_GOOD
 
-        default_extreme = Problem(difficulty="Extreme")
-        self.assertGreaterEqual(default_extreme.grid_height, 7)
-        ones_count = default_extreme.fib_divisor.count("1")
+        default_hard = Problem(difficulty="Hard")
+        self.assertGreaterEqual(default_hard.grid_height, 7)
+        ones_count = default_hard.fib_divisor.count("1")
         self.assertGreaterEqual(ones_count, 2)
 
         # Divisor = 4 (fib '101') padded to 7 rows -> '0000101'
         # so there are 2 target rows (row 4 and row 6) and 5 non-target rows (0, 1, 2, 3, 5).
-        prob = Problem(difficulty="Extreme", divisor=4, quotient=5)
+        prob = Problem(difficulty="Hard", divisor=4, quotient=5)
         self.assertTrue(prob.extreme)
         self.assertEqual(prob.grid_height, 7)
         self.assertEqual(prob.display_label(solved=False), "20 ÷ 4 = ?")
@@ -154,7 +154,7 @@ class PersistenceAndModesTests(unittest.TestCase):
         self.assertFalse(grid.is_win())
 
         # Non-canonical identical arrangement in target rows (e.g. stacked/split tiles)
-        # with all non-target rows empty -> IS a win in Extreme mode!
+        # with all non-target rows empty -> IS a win in Hard mode!
         identical_non_canonical = [[0] * w for _ in range(7)]
         identical_non_canonical[4] = [0] * (w - 3) + [1, 0, 2]
         identical_non_canonical[6] = [0] * (w - 3) + [1, 0, 2]
@@ -162,17 +162,23 @@ class PersistenceAndModesTests(unittest.TestCase):
         self.assertTrue(grid.is_win())
         self.assertTrue(is_extreme_win_state(identical_non_canonical, grid.target_row_mask()))
 
-        # Verify BoardView does not leak target squares via tile colors or inspector in Extreme mode
+        # Verify BoardView does not leak target squares via tile colors or inspector in Hard mode
         with tempfile.TemporaryDirectory() as tmpdir:
             app = App(save_path=Path(tmpdir) / "save.json")
             menu = MenuScene(app)
-            # Press '4' to select Extreme difficulty and verify persistence
-            menu.handle_event(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_4))
-            self.assertEqual(app.difficulty, "Extreme")
+            # Press '3' to select Hard difficulty and verify persistence
+            menu.handle_event(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_3))
+            self.assertEqual(app.difficulty, "Hard")
             app_reloaded = App(save_path=Path(tmpdir) / "save.json")
-            self.assertEqual(app_reloaded.difficulty, "Extreme")
+            self.assertEqual(app_reloaded.difficulty, "Hard")
 
-            scene = GameScene(app, problem=Problem(difficulty="Extreme", divisor=4, quotient=5))
+            # Legacy 'Extreme' save in file migrates cleanly to 'Hard'
+            legacy_save = Path(tmpdir) / "legacy_save.json"
+            legacy_save.write_text('{"difficulty": "Extreme", "best_scores": {}}', encoding="utf-8")
+            legacy_app = App(save_path=legacy_save)
+            self.assertEqual(legacy_app.difficulty, "Hard")
+
+            scene = GameScene(app, problem=Problem(difficulty="Hard", divisor=4, quotient=5))
             surface = pygame.Surface((1280, 820), pygame.SRCALPHA)
 
             # Find a solution cell and place 1 tile in it while board is not yet won
@@ -190,7 +196,7 @@ class PersistenceAndModesTests(unittest.TestCase):
                 TILE_LIVE,
             )
 
-            # Inspector in Extreme mode identifies Target Row via is_target_row without leaking target tags in summary
+            # Inspector in Hard mode identifies Target Row via is_target_row without leaking target tags in summary
             non_sol_c = next(
                 c for c in range(scene.grid.width) if not scene.grid.array[sol_r][c].solution
             )
@@ -206,7 +212,7 @@ class PersistenceAndModesTests(unittest.TestCase):
             self.assertFalse(info_non_target_row["is_target_row"])
             self.assertNotIn("Target", info_non_target_row["summary"])
 
-            # Render Extreme mode board and HUD before and after winning
+            # Render Hard mode board and HUD before and after winning
             scene.draw(surface)
             scene.grid.set_state(identical_non_canonical)
             scene._check_win()

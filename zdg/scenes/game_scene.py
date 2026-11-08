@@ -380,7 +380,7 @@ class GameScene(Scene):
         )
         mode_label = getattr(self.problem, "mode_label", None)
         if not mode_label and self.grid.extreme:
-            mode_label = "Extreme · Match Target Rows"
+            mode_label = "Hard · Match Target Rows"
         hud.draw_top_bar(
             surface,
             self.top_rect,

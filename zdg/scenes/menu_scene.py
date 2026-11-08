@@ -162,7 +162,7 @@ class MenuScene(Scene):
         prob = Problem.custom(
             self.custom_a,
             self.custom_b,
-            extreme=(self.app.difficulty == "Extreme"),
+            extreme=(self.app.difficulty == "Hard"),
         )
         self.app.go_to(GameScene(self.app, problem=prob))
 
@@ -192,8 +192,6 @@ class MenuScene(Scene):
                 self._set_diff("Medium")
             elif event.key == getattr(pygame, "K_3", None):
                 self._set_diff("Hard")
-            elif event.key == getattr(pygame, "K_4", None):
-                self._set_diff("Extreme")
             elif event.key == pygame.K_ESCAPE:
                 self._quit()
 
@@ -280,7 +278,7 @@ class MenuScene(Scene):
         prod = self.custom_a * self.custom_b
         theme.text(
             surface,
-            f"Custom puzzle: {prod} = {min(self.custom_a, self.custom_b)} × {max(self.custom_a, self.custom_b)}   ·   Easy / Medium / Hard / Extreme sets mode & range",
+            f"Custom puzzle: {prod} = {min(self.custom_a, self.custom_b)} × {max(self.custom_a, self.custom_b)}   ·   Easy / Medium / Hard sets mode & range",
             theme.get_font(14),
             MUTED,
             center=(cx, WINDOW_HEIGHT - 32),

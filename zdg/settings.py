@@ -21,13 +21,13 @@ ANIM_MS = 150           # tile move animation duration
 # name -> (lower, upper) bounds for the two random factors
 DIFFICULTIES = {
     "Easy": (2, 5),
-    "Medium": (4, 8),
+    "Medium": (6, 13),
     "Hard": (6, 13),
-    "Extreme": (6, 13),
 }
-DIFFICULTY_ORDER = ["Easy", "Medium", "Hard", "Extreme"]
+DIFFICULTY_ORDER = ["Easy", "Medium", "Hard"]
 DEFAULT_DIFFICULTY = "Medium"
-EXTREME_DEFAULT_ROWS = 7
+HARD_DEFAULT_ROWS = 7
+EXTREME_DEFAULT_ROWS = 7  # backwards-compat alias
 
 # ----- behaviour ---------------------------------------------------------
 HIGHLIGHT_MOVES = True

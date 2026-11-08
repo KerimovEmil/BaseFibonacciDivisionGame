@@ -37,11 +37,11 @@ class TestSolver(unittest.TestCase):
         path = solver.solve(g.state(), mask)
         self.assertEqual(solver.hint(g.state(), mask), path[0])
 
-    def test_solver_scales_to_hard_puzzles(self):
-        # Exhaustively test all Hard factor pairs (6 <= a <= b <= 13)
+    def test_solver_scales_to_medium_puzzles(self):
+        # Exhaustively test all Medium factor pairs (6 <= a <= b <= 13)
         for a in range(6, 14):
             for b in range(a, 14):
-                p = Problem(difficulty="Hard", lower=a, upper=a)
+                p = Problem(difficulty="Medium", lower=a, upper=a)
                 # Force exact pair (a, b)
                 from zdg.util import convert_decimal_to_base_fib
                 p.divisor, p.quotient, p.dividend = a, b, a * b
@@ -51,10 +51,10 @@ class TestSolver(unittest.TestCase):
                 g = Grid(p.grid_width, p.grid_height, p)
                 mask = g.solution_mask()
                 path = solver.solve(g.state(), mask)
-                self.assertIsNotNone(path, f"no path found for Hard puzzle {p.label}")
+                self.assertIsNotNone(path, f"no path found for Medium puzzle {p.label}")
                 for (r, c, d) in path:
                     self.assertTrue(g.apply_move(r, c, d))
-                self.assertTrue(g.is_win(), f"path did not win Hard puzzle {p.label}")
+                self.assertTrue(g.is_win(), f"path did not win Medium puzzle {p.label}")
 
     def test_unsolvable_state_returns_none(self):
         p = Problem(difficulty="Easy")
@@ -63,9 +63,9 @@ class TestSolver(unittest.TestCase):
         bad_state[0][0] += 1  # corrupt invariant value
         self.assertIsNone(solver.solve(bad_state, g.solution_mask()))
 
-    def test_extreme_solver_and_non_canonical_win_states(self):
+    def test_hard_solver_and_non_canonical_win_states(self):
         # 8 = 2 * 4 -> divisor 2 (fib '10'), quotient 4 (fib '101')
-        p = Problem(difficulty="Extreme", divisor=2, quotient=4)
+        p = Problem(difficulty="Hard", divisor=2, quotient=4)
         g = Grid(p.grid_width, p.grid_height, p)
         self.assertTrue(g.extreme)
         path = solver.solve(g.state(), g.solution_mask(), extreme=True)
