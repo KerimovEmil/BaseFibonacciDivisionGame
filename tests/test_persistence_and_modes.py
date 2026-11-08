@@ -190,13 +190,17 @@ class PersistenceAndModesTests(unittest.TestCase):
                 TILE_LIVE,
             )
 
-            # Inspector in Extreme mode indicates Target Row for any column in a target row
+            # Inspector in Extreme mode identifies Target Row via is_target_row without leaking target tags in summary
             non_sol_c = next(
                 c for c in range(scene.grid.width) if not scene.grid.array[sol_r][c].solution
             )
             info_target_row = scene.board.cell_math_info(sol_r, non_sol_c)
             self.assertTrue(info_target_row["is_target_row"])
-            self.assertIn("Target Row", info_target_row["summary"])
+            self.assertNotIn("Target", info_target_row["summary"])
+            self.assertEqual(
+                info_target_row["summary"],
+                f"{info_target_row['row_fib']} × {info_target_row['col_fib']} = {info_target_row['unit_value']}",
+            )
 
             info_non_target_row = scene.board.cell_math_info(1, sol_c)
             self.assertFalse(info_non_target_row["is_target_row"])

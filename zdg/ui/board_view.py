@@ -68,14 +68,9 @@ class BoardView:
         is_target_row = self.grid.is_target_row(row) if hasattr(self.grid, "is_target_row") else False
         if extreme:
             is_target = bool(is_target_row)
-            target_tag = " · Target Row" if is_target_row else ""
         else:
             is_target = bool(cell.solution)
-            target_tag = " · Target" if cell.solution else ""
-        if count > 0:
-            summary = f"({row},{col}): {rf} × {cf} = {unit}  (×{count} = {total}){target_tag}"
-        else:
-            summary = f"({row},{col}): {rf} × {cf} = {unit}  (empty){target_tag}"
+        summary = f"{rf} × {cf} = {unit}"
         return {
             "row": row,
             "col": col,

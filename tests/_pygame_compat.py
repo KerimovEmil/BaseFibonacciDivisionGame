@@ -206,7 +206,7 @@ def ensure_pygame():
 
     font_mod = types.ModuleType("pygame.font")
     font_mod.init = lambda: None
-    font_mod.match_font = lambda name: None
+    font_mod.match_font = lambda *a, **kw: None
     font_mod.Font = Font
     pg.font = font_mod
 

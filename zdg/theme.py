@@ -12,34 +12,55 @@ _tile_cache = {}
 
 # Preferred system faces (used for crisp screenshots on desktop); the builtin
 # pygame font is the guaranteed fallback (e.g. on the web build).
-_PREFERRED = ["Avenir Next", "Helvetica Neue", "Segoe UI", "Arial", "DejaVu Sans"]
-_resolved_face = None
+_PREFERRED = [
+    "Avenir Next",
+    "Helvetica Neue",
+    "Segoe UI",
+    "Roboto",
+    "Liberation Sans",
+    "Arial",
+    "DejaVu Sans",
+]
+_resolved_face = {}
 
 
-def _resolve_face():
-    global _resolved_face
-    if _resolved_face is not None:
-        return _resolved_face
+def _resolve_face(bold: bool = False):
+    if bold in _resolved_face:
+        return _resolved_face[bold]
     for name in _PREFERRED:
-        path = pygame.font.match_font(name.replace(" ", "").lower())
+        clean = name.replace(" ", "").lower()
+        if bold:
+            try:
+                path = pygame.font.match_font(clean, bold=True)
+            except (TypeError, AttributeError):
+                path = None
+            if path:
+                _resolved_face[bold] = (path, False)
+                return _resolved_face[bold]
+        try:
+            path = pygame.font.match_font(clean)
+        except (TypeError, AttributeError):
+            path = None
         if path:
-            _resolved_face = path
-            return path
-    _resolved_face = ""  # signals "use builtin"
-    return _resolved_face
+            _resolved_face[bold] = (path, bold)
+            return _resolved_face[bold]
+    _resolved_face[bold] = ("", bold)
+    return _resolved_face[bold]
 
 
 def get_font(size: int, bold: bool = False) -> pygame.font.Font:
     key = (size, bold)
     if key in _font_cache:
         return _font_cache[key]
-    face = _resolve_face()
+    face, needs_faux = _resolve_face(bold=bold)
     if face:
         font = pygame.font.Font(face, size)
-        font.set_bold(bold)
+        if needs_faux:
+            font.set_bold(True)
     else:
         font = pygame.font.Font(None, int(size * 1.15))
-        font.set_bold(bold)
+        if bold:
+            font.set_bold(True)
     _font_cache[key] = font
     return font
 

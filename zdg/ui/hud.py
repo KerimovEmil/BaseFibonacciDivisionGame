@@ -1,7 +1,7 @@
 """Top status bar (problem banner + stat chips) and the collapsible move log."""
 import pygame
 from zdg import theme
-from zdg.settings import PANEL, PANEL_LIGHT, TEXT, MUTED, ACCENT, GOOD
+from zdg.settings import PANEL, PANEL_LIGHT, TEXT, MUTED, ACCENT, GOOD, GRID_LINE
 
 
 def _fmt_time(seconds):
@@ -16,16 +16,8 @@ def draw_top_bar(surface, area, problem_label, moves, seconds, best, optimal,
     header = mode_label or "Build"
     theme.text(surface, header, theme.get_font(18, True), ACCENT,
                topleft=(area.x + 22, area.y + 16))
-    theme.text(surface, problem_label, theme.get_font(34, True), TEXT,
-               topleft=(area.x + 22, area.y + 36))
-
-    if inspector_text:
-        pill_w = min(380, max(220, len(inspector_text) * 9 + 28))
-        pill = pygame.Rect(0, 0, pill_w, 40)
-        pill.center = (area.centerx - 20, area.centery)
-        theme.rounded_rect(surface, pill, PANEL_LIGHT, radius=10)
-        theme.text(surface, inspector_text, theme.get_font(15, True), ACCENT,
-                   center=pill.center)
+    banner_rect = theme.text(surface, problem_label, theme.get_font(34, True), TEXT,
+                             topleft=(area.x + 22, area.y + 36))
 
     chips = [("MOVES", str(moves), TEXT)]
     chips.append(("TIME", _fmt_time(seconds), TEXT))
@@ -35,7 +27,25 @@ def draw_top_bar(surface, area, problem_label, moves, seconds, best, optimal,
         chips.append(("OPTIMAL", str(optimal), ACCENT))
 
     chip_w, chip_h, gap = 96, 54, 10
-    x = area.right - 22 - len(chips) * (chip_w + gap) + gap
+    total_chips_w = len(chips) * chip_w + (len(chips) - 1) * gap
+    first_chip_x = area.right - 22 - total_chips_w
+
+    if inspector_text:
+        font = theme.get_font(22, True)
+        text_surf = font.render(inspector_text, True, ACCENT)
+        tw, th = text_surf.get_size()
+        pill_w = max(130, tw + 32)
+        pill_h = 44
+        left_bound = banner_rect.right + 20
+        right_bound = first_chip_x - 20
+        center_x = (left_bound + right_bound) // 2
+        pill = pygame.Rect(0, 0, pill_w, pill_h)
+        pill.center = (center_x, area.centery)
+        theme.rounded_rect(surface, pill, PANEL_LIGHT, radius=12)
+        pygame.draw.rect(surface, GRID_LINE, pill, width=1, border_radius=12)
+        surface.blit(text_surf, text_surf.get_rect(center=pill.center))
+
+    x = first_chip_x
     y = area.centery - chip_h // 2
     for label, value, color in chips:
         rect = pygame.Rect(x, y, chip_w, chip_h)
