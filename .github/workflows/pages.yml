@@ -62,7 +62,7 @@ jobs:
             --height 720 \
             main.py
 
-          sed -i 's/#7f7f7f/#161a2c/g' build/web/index.html
+          python "$GITHUB_WORKSPACE/tools/patch_web_index.py" build/web/index.html
           touch build/web/.nojekyll
           ls -lh build/web
 

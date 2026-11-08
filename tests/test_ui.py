@@ -56,6 +56,37 @@ class TestUI(unittest.TestCase):
         bv.update(0.5)
         self.assertEqual(len(bv._flights), 0)
 
+    def test_web_loader_patch_and_initial_splash(self):
+        import tempfile
+        from pathlib import Path
+        from tools.patch_web_index import patch_index_html, patch_file
+        from zdg.app import App
+        from zdg.scenes.menu_scene import MenuScene
+
+        raw_html = "<html><body style='background:#7f7f7f'><div id='transfer'></div></body></html>"
+        patched = patch_index_html(raw_html)
+        self.assertNotIn("#7f7f7f", patched)
+        self.assertIn('id="fib-loader"', patched)
+        self.assertIn("window.dismissFibLoader", patched)
+        # Idempotent when run a second time
+        self.assertEqual(patch_index_html(patched), patched)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            idx = Path(tmpdir) / "index.html"
+            idx.write_text(raw_html, encoding="utf-8")
+            self.assertTrue(patch_file(idx))
+            self.assertIn('id="fib-loader"', idx.read_text(encoding="utf-8"))
+
+            app = App(save_path=Path(tmpdir) / "save.json")
+            app._draw_initial_splash(progress=0.6, status="Testing splash…")
+            menu = MenuScene(app)
+            menu.on_enter()
+            self.assertEqual(menu._intro, 0.0)
+            surf = pygame.Surface((1000, 720), pygame.SRCALPHA)
+            menu.update(0.25)
+            self.assertGreater(menu._intro, 0.0)
+            menu.draw(surf)
+
 
 if __name__ == "__main__":
     unittest.main()
