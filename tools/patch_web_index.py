@@ -6,7 +6,7 @@ gradient progress bar, and fade-out transition into the game canvas).
 import sys
 from pathlib import Path
 
-CUSTOM_LOADER_SNIPPET = """
+CUSTOM_LOADER_SNIPPET = r"""
 <!-- Base Fibonacci Division Custom Loader -->
 <style id="fib-loader-style">
   html, body {
