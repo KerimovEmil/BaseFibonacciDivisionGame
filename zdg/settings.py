@@ -27,6 +27,7 @@ DIFFICULTIES = {
 }
 DIFFICULTY_ORDER = ["Easy", "Medium", "Hard", "Extreme"]
 DEFAULT_DIFFICULTY = "Medium"
+EXTREME_DEFAULT_ROWS = 7
 
 # ----- behaviour ---------------------------------------------------------
 HIGHLIGHT_MOVES = True

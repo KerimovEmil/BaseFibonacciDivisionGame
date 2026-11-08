@@ -113,43 +113,51 @@ class PersistenceAndModesTests(unittest.TestCase):
         from zdg.grid import Grid, is_extreme_win_state
         from zdg.settings import TILE_LIVE, TILE_GOOD
 
-        # 8 = 2 * 4 -> Wait: let's test divisor = 4 (fib '101', rows 0 and 2) and quotient = 5 (fib '1000')
-        # so there are 2 target rows (row 0 and row 2) and 1 non-target row (row 1).
+        default_extreme = Problem(difficulty="Extreme")
+        self.assertGreaterEqual(default_extreme.grid_height, 7)
+        ones_count = default_extreme.fib_divisor.count("1")
+        self.assertGreaterEqual(ones_count, 2)
+
+        # Divisor = 4 (fib '101') padded to 7 rows -> '0000101'
+        # so there are 2 target rows (row 4 and row 6) and 5 non-target rows (0, 1, 2, 3, 5).
         prob = Problem(difficulty="Extreme", divisor=4, quotient=5)
         self.assertTrue(prob.extreme)
+        self.assertEqual(prob.grid_height, 7)
         self.assertEqual(prob.display_label(solved=False), "20 ÷ 4 = ?")
         self.assertEqual(prob.display_label(solved=True), "20 = 4 × 5")
 
         grid = Grid(prob.grid_width, prob.grid_height, prob)
         self.assertTrue(grid.extreme)
-        self.assertEqual(grid.target_rows(), (0, 2))
-        self.assertEqual(grid.target_row_mask(), (True, False, True))
-        self.assertTrue(grid.is_target_row(0))
-        self.assertFalse(grid.is_target_row(1))
-        self.assertTrue(grid.is_target_row(2))
+        self.assertEqual(grid.target_rows(), (4, 6))
+        self.assertEqual(grid.target_row_mask(), (False, False, False, False, True, False, True))
+        self.assertFalse(grid.is_target_row(0))
+        self.assertFalse(grid.is_target_row(3))
+        self.assertTrue(grid.is_target_row(4))
+        self.assertFalse(grid.is_target_row(5))
+        self.assertTrue(grid.is_target_row(6))
         self.assertFalse(grid.is_win())
 
         w = grid.width
-        # Identical target rows, but non-target row 1 still has a piece -> NOT a win
-        partial = [[0] * w for _ in range(3)]
-        partial[0][-1] = 2
-        partial[2][-1] = 2
-        partial[1][0] = 1
+        # Identical target rows, but non-target row 5 still has a piece -> NOT a win
+        partial = [[0] * w for _ in range(7)]
+        partial[4][-1] = 2
+        partial[6][-1] = 2
+        partial[5][0] = 1
         grid.set_state(partial)
         self.assertFalse(grid.is_win())
 
-        # All pieces in target rows, but target rows 0 and 2 differ -> NOT a win
-        diff_rows = [[0] * w for _ in range(3)]
-        diff_rows[0] = [0] * (w - 2) + [1, 0]
-        diff_rows[2] = [0] * (w - 2) + [0, 2]
+        # All pieces in target rows, but target rows 4 and 6 differ -> NOT a win
+        diff_rows = [[0] * w for _ in range(7)]
+        diff_rows[4] = [0] * (w - 2) + [1, 0]
+        diff_rows[6] = [0] * (w - 2) + [0, 2]
         grid.set_state(diff_rows)
         self.assertFalse(grid.is_win())
 
         # Non-canonical identical arrangement in target rows (e.g. stacked/split tiles)
         # with all non-target rows empty -> IS a win in Extreme mode!
-        identical_non_canonical = [[0] * w for _ in range(3)]
-        identical_non_canonical[0] = [0] * (w - 3) + [1, 0, 2]
-        identical_non_canonical[2] = [0] * (w - 3) + [1, 0, 2]
+        identical_non_canonical = [[0] * w for _ in range(7)]
+        identical_non_canonical[4] = [0] * (w - 3) + [1, 0, 2]
+        identical_non_canonical[6] = [0] * (w - 3) + [1, 0, 2]
         grid.set_state(identical_non_canonical)
         self.assertTrue(grid.is_win())
         self.assertTrue(is_extreme_win_state(identical_non_canonical, grid.target_row_mask()))
