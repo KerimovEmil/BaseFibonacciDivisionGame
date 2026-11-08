@@ -243,5 +243,10 @@ def ensure_pygame():
     event_mod.Event = lambda t, **kw: types.SimpleNamespace(type=t, **kw)
     pg.event = event_mod
 
+    transform_mod = types.ModuleType("pygame.transform")
+    transform_mod.rotate = lambda surf, angle: surf
+    transform_mod.smoothscale = lambda surf, size: Surface(size)
+    pg.transform = transform_mod
+
     sys.modules["pygame"] = pg
     return pg

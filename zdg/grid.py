@@ -8,10 +8,15 @@ from zdg import rules
 
 
 class Grid:
-    def __init__(self, width: int, height: int, problem):
+    def __init__(self, width: int, height: int, problem, extreme: bool = None):
         self.width = width
         self.height = height
         self.problem = problem
+        self.extreme = (
+            bool(getattr(problem, "extreme", False))
+            if extreme is None
+            else bool(extreme)
+        )
         self.fib_dividend = problem.fib_dividend
         self.fib_divisor = problem.fib_divisor
         self.fib_quotient = problem.fib_quotient
@@ -55,6 +60,17 @@ class Grid:
     def solution_mask(self):
         return tuple(tuple(c.solution for c in row) for row in self.array)
 
+    def target_rows(self):
+        """Tuple of row indices that belong to the divisor's Zeckendorf representation."""
+        return tuple(r for r, bit in enumerate(self.fib_divisor) if bit == '1')
+
+    def target_row_mask(self):
+        """Tuple of booleans marking which rows are target rows."""
+        return tuple(bit == '1' for bit in self.fib_divisor)
+
+    def is_target_row(self, row: int) -> bool:
+        return 0 <= row < len(self.fib_divisor) and self.fib_divisor[row] == '1'
+
     @property
     def num_solution_cells(self) -> int:
         return self.fib_divisor.count('1') * self.fib_quotient.count('1')
@@ -78,6 +94,8 @@ class Grid:
 
     # ----- win ------------------------------------------------------------
     def is_win(self) -> bool:
+        if self.extreme:
+            return is_extreme_win_state(self.state(), self.target_rows())
         return is_win_state(self.state(), self.solution_mask())
 
 
@@ -89,5 +107,42 @@ def is_win_state(state, mask) -> bool:
                 if value != 1:
                     return False
             elif value != 0:
+                return False
+    return True
+
+
+def _normalize_target_rows(state, target_rows):
+    rows = list(target_rows)
+    if not rows:
+        return []
+    first = rows[0]
+    if isinstance(first, (list, tuple)):
+        return [r for r, row_mask in enumerate(rows) if any(row_mask)]
+    if all(isinstance(x, bool) for x in rows) and len(rows) == len(state):
+        return [r for r, flag in enumerate(rows) if flag]
+    return [int(r) for r in rows]
+
+
+def is_extreme_win_state(state, target_rows) -> bool:
+    """An Extreme-mode win:
+    - All non-target rows hold only 0s (all pieces are in the target rows).
+    - Every target row has the exact same tile arrangement.
+    - Target rows contain at least one piece.
+    """
+    if not state:
+        return False
+    t_indices = _normalize_target_rows(state, target_rows)
+    if not t_indices:
+        return False
+    t_set = set(t_indices)
+    first_row = list(state[t_indices[0]])
+    if sum(first_row) <= 0 or any(v < 0 for v in first_row):
+        return False
+    for r, row in enumerate(state):
+        if r in t_set:
+            if list(row) != first_row:
+                return False
+        else:
+            if any(v != 0 for v in row):
                 return False
     return True

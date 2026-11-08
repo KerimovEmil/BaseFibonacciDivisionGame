@@ -64,7 +64,14 @@ class BoardView:
         cell = self.grid.array[row][col]
         count = cell.value
         total = count * unit
-        target_tag = " · Target" if cell.solution else ""
+        extreme = bool(getattr(self.grid, "extreme", False))
+        is_target_row = self.grid.is_target_row(row) if hasattr(self.grid, "is_target_row") else False
+        if extreme:
+            is_target = bool(is_target_row)
+            target_tag = " · Target Row" if is_target_row else ""
+        else:
+            is_target = bool(cell.solution)
+            target_tag = " · Target" if cell.solution else ""
         if count > 0:
             summary = f"({row},{col}): {rf} × {cf} = {unit}  (×{count} = {total}){target_tag}"
         else:
@@ -77,7 +84,8 @@ class BoardView:
             "unit_value": unit,
             "count": count,
             "total_value": total,
-            "is_target": bool(cell.solution),
+            "is_target": is_target,
+            "is_target_row": bool(is_target_row),
             "summary": summary,
         }
 
@@ -171,16 +179,22 @@ class BoardView:
         col_fibs = get_first_n_zeckendorf_terms(gw)[::-1]
         row_fibs = get_first_n_zeckendorf_terms(gh)[::-1]
         font = theme.get_font(max(13, self.block // 5), True)
+        extreme = bool(getattr(self.grid, "extreme", False))
         for c, fib in enumerate(col_fibs):
             cx = ox + c * self.block + self.block // 2
             theme.text(surface, fib, font, MUTED,
                        center=(cx, oy + gh * self.block + 16))
         for r, fib in enumerate(row_fibs):
             cy = oy + r * self.block + self.block // 2
-            theme.text(surface, fib, font, MUTED,
+            is_trow = extreme and self.grid.is_target_row(r)
+            color = TARGET_SLOT if is_trow else MUTED
+            theme.text(surface, fib, font, color,
                        center=(ox + gw * self.block + 16, cy))
 
     def _draw_target_slots(self, surface):
+        if getattr(self.grid, "extreme", False):
+            self._draw_target_rows(surface)
+            return
         glow = (math.sin(self._pulse * 3) + 1) / 2  # 0..1
         for (r, c), rect in self._rects.items():
             cell = self.grid.array[r][c]
@@ -193,6 +207,47 @@ class BoardView:
                 pygame.draw.rect(layer, (*TARGET_SLOT, int(28 + 26 * glow)),
                                  layer.get_rect().inflate(-6, -6), border_radius=8)
                 surface.blit(layer, inner.topleft)
+
+    def _draw_target_rows(self, surface):
+        """Highlight entire target rows (Extreme mode) without revealing target columns."""
+        glow = (math.sin(self._pulse * 3) + 1) / 2  # 0..1
+        gw = self.grid.width
+        if gw <= 0:
+            return
+        for r in self.grid.target_rows():
+            first_rect = self._rects.get((r, 0))
+            last_rect = self._rects.get((r, gw - 1))
+            if not first_rect or not last_rect:
+                continue
+            for c in range(gw):
+                cell_rect = self._rects.get((r, c))
+                if cell_rect:
+                    inner = cell_rect.inflate(-8, -8)
+                    cell_layer = pygame.Surface(inner.size, pygame.SRCALPHA)
+                    pygame.draw.rect(
+                        cell_layer,
+                        (*TARGET_SLOT, int(22 + 20 * glow)),
+                        cell_layer.get_rect(),
+                        border_radius=9,
+                    )
+                    surface.blit(cell_layer, inner.topleft)
+
+            row_rect = pygame.Rect(
+                first_rect.left + 2,
+                first_rect.top + 2,
+                last_rect.right - first_rect.left - 4,
+                first_rect.height - 4,
+            )
+            band = pygame.Surface(row_rect.size, pygame.SRCALPHA)
+            border_alpha = int(115 + 85 * glow)
+            pygame.draw.rect(
+                band,
+                (*TARGET_SLOT, border_alpha),
+                band.get_rect(),
+                width=3,
+                border_radius=12,
+            )
+            surface.blit(band, row_rect.topleft)
 
     def _draw_highlights(self, surface, highlight):
         glow = (math.sin(self._pulse * 6) + 1) / 2
@@ -229,6 +284,10 @@ class BoardView:
             pygame.draw.line(surface, ACCENT, end, (hx, hy), 4)
 
     def _tile_colors(self, cell):
+        if getattr(self.grid, "extreme", False):
+            if self.grid.is_win():
+                return TILE_GOOD
+            return TILE_LIVE
         if cell.solution and cell.value == 1:
             return TILE_GOOD
         if cell.solution and cell.value > 1:

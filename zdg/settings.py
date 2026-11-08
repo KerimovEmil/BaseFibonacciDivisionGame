@@ -23,8 +23,9 @@ DIFFICULTIES = {
     "Easy": (2, 5),
     "Medium": (4, 8),
     "Hard": (6, 13),
+    "Extreme": (6, 13),
 }
-DIFFICULTY_ORDER = ["Easy", "Medium", "Hard"]
+DIFFICULTY_ORDER = ["Easy", "Medium", "Hard", "Extreme"]
 DEFAULT_DIFFICULTY = "Medium"
 
 # ----- behaviour ---------------------------------------------------------

@@ -21,7 +21,7 @@ over k) forms a tight, consistent, O(1)-updatable admissible heuristic for A*.
 """
 from collections import deque
 import heapq
-from zdg.grid import is_win_state
+from zdg.grid import is_win_state, is_extreme_win_state
 from zdg.settings import SOLVER_MAX_NODES
 from zdg.util import get_first_n_zeckendorf_terms
 
@@ -42,12 +42,16 @@ def _min_signed_fib_table(allowed_fibs, max_val):
     return [dist.get(abs(i - max_val), 99) for i in range(max_val * 2 + 1)]
 
 
-def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES):
+def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES, extreme=False):
     """Return a shortest list of (row, col, direction) moves, or None.
 
     ``mask`` is the solution mask (tuple of tuple of bool).
+    When ``extreme=True``, any state with identical non-empty target rows and
+    empty non-target rows is accepted as a goal state.
     """
     if is_win_state(start_state, mask):
+        return []
+    if extreme and is_extreme_win_state(start_state, mask):
         return []
 
     H, W = len(start_state), len(start_state[0])
@@ -70,6 +74,14 @@ def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES):
     start = pack(start_state)
     goal = pack(goal_grid)
     if start == goal:
+        return []
+
+    target_rows = [r for r in range(H) if any(mask[r])]
+    row_bits = W * 8
+    row_mask = (1 << row_bits) - 1
+    t0_shift = target_rows[0] * row_bits if target_rows else 0
+    target_mult = sum(1 << (r * row_bits) for r in target_rows)
+    if extreme and target_mult and start != 0 and start == ((start >> t0_shift) & row_mask) * target_mult:
         return []
 
     N = max(1, start_val)
@@ -156,7 +168,12 @@ def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES):
 
     while pq:
         f, g, rh, s, ab = heapq.heappop(pq)
-        if s == goal:
+        if s == goal or (
+            extreme
+            and target_mult
+            and s != 0
+            and s == ((s >> t0_shift) & row_mask) * target_mult
+        ):
             path = []
             while parent[s] is not None:
                 s, mv = parent[s]
@@ -171,6 +188,19 @@ def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES):
             if not v1 or (ctype == 1 and v1 < 2) or (ctype == 2 and not ((s >> s2) & 0xFF)):
                 continue
             nxt = s + delta
+            if (
+                extreme
+                and target_mult
+                and nxt != 0
+                and nxt == ((nxt >> t0_shift) & row_mask) * target_mult
+            ):
+                path = [mv]
+                cur = s
+                while parent[cur] is not None:
+                    cur, pmv = parent[cur]
+                    path.append(pmv)
+                path.reverse()
+                return path
             if ng >= g_score.get(nxt, 10**9):
                 continue
             g_score[nxt] = ng
@@ -187,16 +217,16 @@ def solve(start_state, mask, max_nodes=SOLVER_MAX_NODES):
     return None
 
 
-def hint(start_state, mask, max_nodes=SOLVER_MAX_NODES):
+def hint(start_state, mask, max_nodes=SOLVER_MAX_NODES, extreme=False):
     """The first move of an optimal solution, or None if unsolvable/solved."""
-    path = solve(start_state, mask, max_nodes)
+    path = solve(start_state, mask, max_nodes, extreme=extreme)
     if not path:
         return None
     return path[0]
 
 
-def optimal_length(start_state, mask, max_nodes=SOLVER_MAX_NODES):
-    path = solve(start_state, mask, max_nodes)
+def optimal_length(start_state, mask, max_nodes=SOLVER_MAX_NODES, extreme=False):
+    path = solve(start_state, mask, max_nodes, extreme=extreme)
     return None if path is None else len(path)
 
 

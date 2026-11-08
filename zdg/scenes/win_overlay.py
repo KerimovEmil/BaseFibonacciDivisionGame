@@ -14,11 +14,13 @@ def _fmt_time(seconds):
 
 
 class WinOverlay:
-    def __init__(self, moves, seconds, optimal, on_again, on_menu, auto_solved=False):
+    def __init__(self, moves, seconds, optimal, on_again, on_menu,
+                 auto_solved=False, problem_label=None):
         self.moves = moves
         self.seconds = seconds
         self.optimal = optimal
         self.auto_solved = auto_solved
+        self.problem_label = problem_label
         self._on_again = on_again
         self._on_menu = on_menu
         self.particles = ParticleSystem()
@@ -81,6 +83,8 @@ class WinOverlay:
                 label = "Perfect — optimal solution!"
             else:
                 label = "Nicely done."
+            if self.problem_label:
+                label = f"{self.problem_label}  ·  {label}"
             theme.text(surface, label, theme.get_font(20), MUTED,
                        center=(cx, card.y + 104))
             stats = [("Moves", str(self.moves)),

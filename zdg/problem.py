@@ -25,9 +25,11 @@ class Problem:
         quotient=None,
         seed=None,
         mode_label=None,
+        extreme=None,
     ):
         self.difficulty = difficulty
         self.seed = seed
+        self.extreme = (difficulty == "Extreme") if extreme is None else bool(extreme)
         self.mode_label = mode_label
         lo, hi = DIFFICULTIES.get(difficulty, DIFFICULTIES[DEFAULT_DIFFICULTY])
         if lower is not None:
@@ -58,23 +60,25 @@ class Problem:
         return min(a, b), max(a, b), a * b
 
     @classmethod
-    def daily(cls, date_str=None, difficulty="Medium"):
+    def daily(cls, date_str=None, difficulty="Medium", extreme=None):
         """Return today's deterministic Daily Challenge puzzle."""
         day = date_str or date.today().isoformat()
         return cls(
             difficulty=difficulty,
             seed=f"daily:{day}:{difficulty}",
             mode_label=f"Daily · {day}",
+            extreme=extreme,
         )
 
     @classmethod
-    def custom(cls, a: int, b: int):
+    def custom(cls, a: int, b: int, extreme: bool = False):
         """Return a custom puzzle for explicit factors ``a`` and ``b``."""
         return cls(
-            difficulty="Custom",
+            difficulty="Extreme" if extreme else "Custom",
             divisor=a,
             quotient=b,
-            mode_label="Custom",
+            mode_label="Custom · Extreme" if extreme else "Custom",
+            extreme=extreme,
         )
 
     @property
@@ -88,3 +92,12 @@ class Problem:
     @property
     def label(self):
         return f"{self.dividend} = {self.divisor} × {self.quotient}"
+
+    @property
+    def mystery_label(self):
+        return f"{self.dividend} ÷ {self.divisor} = ?"
+
+    def display_label(self, solved: bool = False) -> str:
+        if self.extreme and not solved:
+            return self.mystery_label
+        return self.label

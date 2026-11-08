@@ -63,6 +63,18 @@ class TestSolver(unittest.TestCase):
         bad_state[0][0] += 1  # corrupt invariant value
         self.assertIsNone(solver.solve(bad_state, g.solution_mask()))
 
+    def test_extreme_solver_and_non_canonical_win_states(self):
+        # 8 = 2 * 4 -> divisor 2 (fib '10'), quotient 4 (fib '101')
+        p = Problem(difficulty="Extreme", divisor=2, quotient=4)
+        g = Grid(p.grid_width, p.grid_height, p)
+        self.assertTrue(g.extreme)
+        path = solver.solve(g.state(), g.solution_mask(), extreme=True)
+        self.assertIsNotNone(path)
+        for r, c, d in path:
+            self.assertTrue(g.apply_move(r, c, d))
+        self.assertTrue(g.is_win())
+        self.assertEqual(solver.solve(g.state(), g.solution_mask(), extreme=True), [])
+
 
 if __name__ == "__main__":
     unittest.main()

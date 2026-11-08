@@ -45,7 +45,9 @@ class GameScene(Scene):
         self._auto_timer = 0.0
         self.move_log = hud.MoveLog()
         self.win = None
-        initial_path = solver.solve(self.grid.state(), self.mask)
+        initial_path = solver.solve(
+            self.grid.state(), self.mask, extreme=self.grid.extreme
+        )
         self._initial_path = list(initial_path) if initial_path is not None else None
         self._cached_path = list(initial_path) if initial_path is not None else None
         self.optimal = len(initial_path) if initial_path is not None else None
@@ -95,7 +97,9 @@ class GameScene(Scene):
 
     def _ensure_path(self):
         if self._cached_path is None:
-            path = solver.solve(self.grid.state(), self.mask)
+            path = solver.solve(
+                self.grid.state(), self.mask, extreme=self.grid.extreme
+            )
             self._cached_path = list(path) if path is not None else None
         return self._cached_path
 
@@ -197,9 +201,15 @@ class GameScene(Scene):
         if self.grid.is_win():
             if not self.used_auto_solve:
                 self.app.record_best(self.problem.label, self.moves)
-            self.win = WinOverlay(self.moves, self.elapsed, self.optimal,
-                                  on_again=self.new_game, on_menu=self.go_menu,
-                                  auto_solved=self.used_auto_solve)
+            self.win = WinOverlay(
+                self.moves,
+                self.elapsed,
+                self.optimal,
+                on_again=self.new_game,
+                on_menu=self.go_menu,
+                auto_solved=self.used_auto_solve,
+                problem_label=self.problem.label if self.grid.extreme else None,
+            )
             sound.play("WIN_GAME")
 
     def _clear_selection(self):
@@ -362,16 +372,25 @@ class GameScene(Scene):
     def draw(self, surface):
         best = self.app.best_scores.get(self.problem.label)
         info = self.inspected_cell_info()
+        solved = self.win is not None
+        banner = (
+            self.problem.display_label(solved=solved)
+            if hasattr(self.problem, "display_label")
+            else self.problem.label
+        )
+        mode_label = getattr(self.problem, "mode_label", None)
+        if not mode_label and self.grid.extreme:
+            mode_label = "Extreme · Match Target Rows"
         hud.draw_top_bar(
             surface,
             self.top_rect,
-            self.problem.label,
+            banner,
             self.moves,
             self.elapsed,
             best,
             self.optimal,
             inspector_text=info["summary"] if info else None,
-            mode_label=getattr(self.problem, "mode_label", None),
+            mode_label=mode_label,
         )
 
         # board panel
